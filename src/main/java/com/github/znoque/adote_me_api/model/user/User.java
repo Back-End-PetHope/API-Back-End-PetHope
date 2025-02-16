@@ -14,7 +14,7 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id_user")
-    private String id;
+    private String idUser;
 
     @Email
     @NotNull
@@ -30,7 +30,7 @@ public class User {
     private String password;
 
     public String getId() {
-        return id;
+        return idUser;
     }
 
     public String getEmail() {

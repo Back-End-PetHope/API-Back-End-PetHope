@@ -17,6 +17,10 @@ public class UserService {
     //alterar para protected depois e testar
     public User saveUser(UserDto data) {
 
+        User isEmailExisting  = userRepository.findByEmail(data.email());
+        if (isEmailExisting  != null) {
+            throw new RuntimeException("Usuario ja criado");
+        }
         User user = new User();
         user.setEmail(data.email());
         user.setPassword(data.password());

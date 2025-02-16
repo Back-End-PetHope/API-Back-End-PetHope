@@ -33,7 +33,7 @@ public class UserAuthController {
             UserDto userLogin = authService.authenticate(data);
             return ResponseEntity.status(HttpStatus.OK).body(userLogin);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro interno do servidor");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro interno do servidor"+e.getMessage());
         }
 
     }
