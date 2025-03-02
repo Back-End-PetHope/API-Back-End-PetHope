@@ -38,4 +38,9 @@ public class UserAuthController {
 
     }
 
+    @PostMapping("/login/social")
+    public ResponseEntity<?> loginSocial() {
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
 }
