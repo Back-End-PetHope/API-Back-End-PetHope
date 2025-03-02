@@ -5,18 +5,17 @@ import com.github.znoque.adote_me_api.dto.UserDto;
 import com.github.znoque.adote_me_api.model.user.User;
 import com.github.znoque.adote_me_api.services.AuthService;
 import com.github.znoque.adote_me_api.services.UserService;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.naming.AuthenticationException;
+import java.io.IOException;
 
 @RestController
-@RequestMapping("user-auth")
+@RequestMapping("auth")
 public class UserAuthController {
 
 
@@ -38,9 +37,16 @@ public class UserAuthController {
 
     }
 
-    @PostMapping("/login/social")
-    public ResponseEntity<?> loginSocial() {
-        return ResponseEntity.status(HttpStatus.OK).build();
+    @GetMapping("/social")
+    public void loginSocial(HttpServletResponse response) throws IOException {
+        response.sendRedirect("/auth/login/oauth2/code/google");
     }
+// http://localhost:8080
+//    @GetMapping("/social")
+//    public ResponseEntity<String> loginSocial() {
+//        return ResponseEntity.ok("Redirecione manualmente para: http://localhost:8080/auth/login/oauth2/code/google");
+//    }
+
+
 
 }
