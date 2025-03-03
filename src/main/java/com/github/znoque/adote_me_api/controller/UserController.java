@@ -1,9 +1,14 @@
 package com.github.znoque.adote_me_api.controller;
 
 
+import com.github.znoque.adote_me_api.config.SwaggerDocumentacionConfig;
 import com.github.znoque.adote_me_api.dto.UserDto;
 import com.github.znoque.adote_me_api.model.user.User;
 import com.github.znoque.adote_me_api.services.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("user")
+@Tag(name = SwaggerDocumentacionConfig.TAG_USER)
 public class UserController {
 
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
@@ -29,6 +35,15 @@ public class UserController {
     }
 
     @PostMapping("/create")
+    @Operation(
+            summary = SwaggerDocumentacionConfig.SUMARIO_USER,
+            description = SwaggerDocumentacionConfig.DESCRICAO_USER
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "201",description = SwaggerDocumentacionConfig.RESPONSE_201),
+            @ApiResponse(responseCode = "422",description = SwaggerDocumentacionConfig.RESPONSE_422),
+            @ApiResponse(responseCode = "500",description = SwaggerDocumentacionConfig.RESPONSE_500)
+    })
     public ResponseEntity<?> createUser(@RequestBody @Valid UserDto data) {
 
         try {
