@@ -15,7 +15,9 @@ public class SecutiryConfig {
         http
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
-                        .requestMatchers(HttpMethod.GET,"/auth/login","/auth/social").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/user/create").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/social").permitAll()
                         .requestMatchers("/auth/login/oauth2/**").permitAll()
                         .anyRequest().authenticated()
                 )
@@ -28,4 +30,6 @@ public class SecutiryConfig {
 
         return http.build();
     }
+
+
 }
