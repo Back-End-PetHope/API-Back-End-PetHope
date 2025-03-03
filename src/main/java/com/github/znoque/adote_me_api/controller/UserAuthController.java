@@ -40,4 +40,9 @@ public class UserAuthController {
 
     }
 
+    @GetMapping("/google")
+    public String login() {
+        return "Em vez de usar esse endpoint, utilizar uma pagina do frontEnd no form.defaultSuccessUrl";
+    }
+
 }
