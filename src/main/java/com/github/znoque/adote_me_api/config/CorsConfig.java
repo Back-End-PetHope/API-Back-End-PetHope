@@ -13,10 +13,12 @@ public class CorsConfig {
     public CorsFilter corsFilter() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
         //corsConfiguration.addAllowedOrigin("http://localhost:5173"); // Frontend
-        corsConfiguration.addAllowedOrigin("*"); // Frontend
-        corsConfiguration.addAllowedMethod("*"); // Permite todos os métodos
-        corsConfiguration.addAllowedHeader("*"); // Permite todos os headers
-        corsConfiguration.setAllowCredentials(true); // Permite credenciais
+        corsConfiguration.addAllowedOriginPattern("*");
+        corsConfiguration.addAllowedOrigin("http://localhost:5500");
+        corsConfiguration.addAllowedOrigin("http://127.0.0.1:5500");
+        corsConfiguration.setAllowCredentials(true);
+        corsConfiguration.addAllowedMethod("*");
+        corsConfiguration.addAllowedHeader("*");
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", corsConfiguration);

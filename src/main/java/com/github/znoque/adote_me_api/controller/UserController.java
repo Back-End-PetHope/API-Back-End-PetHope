@@ -41,4 +41,16 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> loginUser (@RequestBody @Valid UserDto data) {
+
+        try {
+            UserDto userLogin = authService.authenticate(data);
+            return ResponseEntity.status(HttpStatus.OK).body(userLogin);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro interno do servidor"+e.getMessage());
+        }
+
+    }
 }
