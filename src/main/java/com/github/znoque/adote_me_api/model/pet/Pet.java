@@ -49,7 +49,13 @@ public class Pet {
 
     //private User userID;
 
+<<<<<<< HEAD
+    //dd
 
+=======
+    //Teste
+    
+>>>>>>> b7b51bccc52307d5c6e55b8c0ad84191161f04ab
     public int getId() {
         return id;
     }
