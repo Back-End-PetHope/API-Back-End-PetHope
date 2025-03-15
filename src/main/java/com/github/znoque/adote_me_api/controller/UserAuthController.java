@@ -3,9 +3,7 @@ package com.github.znoque.adote_me_api.controller;
 
 import com.github.znoque.adote_me_api.config.SwaggerDocumentacionConfig;
 import com.github.znoque.adote_me_api.dto.UserDto;
-import com.github.znoque.adote_me_api.model.user.User;
 import com.github.znoque.adote_me_api.services.AuthService;
-import com.github.znoque.adote_me_api.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -19,7 +17,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 
-import javax.naming.AuthenticationException;
 import java.io.IOException;
 import java.util.Map;
 
@@ -55,7 +52,7 @@ public class UserAuthController {
 
     }
 
-    @GetMapping("/user-google-info")
+    @GetMapping("/auth-google-info")
     @Operation(summary = SwaggerDocumentacionConfig.SUMARIO_GOOGLE_INFO, description = SwaggerDocumentacionConfig.DESCRICAO_GOOGLE_INFO)
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = SwaggerDocumentacionConfig.RESPONSE_200),

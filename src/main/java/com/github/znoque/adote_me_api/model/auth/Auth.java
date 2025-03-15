@@ -1,4 +1,4 @@
-package com.github.znoque.adote_me_api.model.user;
+package com.github.znoque.adote_me_api.model.auth;
 
 
 import jakarta.persistence.*;
@@ -8,24 +8,24 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 @Entity
-@Table(name = "tb_user")
-public class User {
+@Table(name = "tb_auth")
+public class Auth {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "id_user")
+    @Column(name = "id_auth")
     private String idUser;
 
     @Email
     @NotNull
     @NotBlank
-    @Column(name = "email_user",length = 155,nullable = false)
+    @Column(name = "email_auth",length = 155,nullable = false)
     @Size(min = 11, max = 155)
     private String email;
 
     @NotNull
     @NotBlank
-    @Column(name = "password_user",nullable = false)
+    @Column(name = "password_auth",nullable = false)
     @Size(min = 6, max = 255)
     private String password;
 

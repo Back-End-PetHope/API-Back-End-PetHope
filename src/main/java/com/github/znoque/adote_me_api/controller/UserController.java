@@ -3,7 +3,7 @@ package com.github.znoque.adote_me_api.controller;
 
 import com.github.znoque.adote_me_api.config.SwaggerDocumentacionConfig;
 import com.github.znoque.adote_me_api.dto.UserDto;
-import com.github.znoque.adote_me_api.model.user.User;
+import com.github.znoque.adote_me_api.model.auth.Auth;
 import com.github.znoque.adote_me_api.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
-@RequestMapping("user")
+@RequestMapping("auth")
 @Tag(name = SwaggerDocumentacionConfig.TAG_USER)
 public class UserController {
 
@@ -47,8 +47,8 @@ public class UserController {
     public ResponseEntity<?> createUser(@RequestBody @Valid UserDto data) {
 
         try {
-            User user = userService.saveUser(data);
-            return ResponseEntity.status(HttpStatus.CREATED).body(user);
+            Auth auth = userService.saveUser(data);
+            return ResponseEntity.status(HttpStatus.CREATED).body(auth);
         } catch (DataIntegrityViolationException e) {
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(e.getMessage());
         } catch (Exception e) {
