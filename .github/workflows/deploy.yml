@@ -36,3 +36,13 @@ jobs:
           VERSION=latest
           docker tag pethopeapi:latest $IMAGE_NAME:$VERSION
           docker push $IMAGE_NAME:$VERSION
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: docker_build
+    steps:
+      - name: Trigger Render deployment
+        env:
+          deploy_url: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: |
+          curl -X POST "$deploy_url"
