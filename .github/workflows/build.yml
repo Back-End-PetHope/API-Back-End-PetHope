@@ -43,3 +43,15 @@ jobs:
 
       - name: Build Docker image
         run: docker build -t pethopeapi:latest .
+
+      - name: Run Docker container for testing
+        run: docker run -d -p 8080:8080 --name pethopeapi_container pethopeapi:latest
+
+      - name: Wait for the application to start
+        run: sleep 10
+
+      - name: Run health check
+        run: curl -f http://localhost:8080/api/actuator/health
+
+      - name: Stop Docker container
+        run: docker stop pethopeapi_container
