@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: pethope
+
+server:
+  servlet:
+    context-path: /api
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health

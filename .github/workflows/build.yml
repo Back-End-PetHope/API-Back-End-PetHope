@@ -1,0 +1,57 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - "main"
+      - "dev_main*"
+  pull_request:
+    branches:
+      - "main"
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 23
+        uses: actions/setup-java@v3
+        with:
+          java-version: "23"
+          distribution: "temurin"
+          cache: "maven"
+
+      - name: Cache Maven dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: maven-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            maven-${{ runner.os }}-
+
+      - name: Build and Test with Maven
+        run: mvn clean verify -DskipTests=false
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-jar
+          path: target/pethope.jar
+
+      - name: Build Docker image
+        run: docker build -t pethopeapi:latest .
+
+      - name: Run Docker container for testing
+        run: docker run -d -p 8080:8080 --name pethopeapi_container pethopeapi:latest
+
+      - name: Wait for the application to start
+        run: sleep 10
+
+      - name: Run health check
+        run: curl -f http://localhost:8080/api/actuator/health
+
+      - name: Stop Docker container
+        run: docker stop pethopeapi_container

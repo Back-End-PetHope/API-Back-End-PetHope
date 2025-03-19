@@ -9,9 +9,9 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.github.znoque</groupId>
-    <artifactId>adote-me-api</artifactId>
+    <artifactId>pethope</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>adote-me-api</name>
+    <name>pethope</name>
     <description>Back-end de um aplicativo para adoção de animais.</description>
     <url/>
     <licenses>
@@ -37,13 +37,33 @@
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
             <scope>runtime</scope>
             <optional>true</optional>
         </dependency>
+
+
+        <!-- Tests -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webflux</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
+        <finalName>pethope</finalName> <!-- Define o nome do arquivo JAR gerado -->
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
