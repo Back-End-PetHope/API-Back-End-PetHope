@@ -1,0 +1,151 @@
+name: Build e Deploy
+on:
+  push:
+    branches:
+      - "main"
+  pull_request:
+    branches:
+      - "main"
+      - "develop"
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v3
+
+      - name: Configurar JDK 23
+        uses: actions/setup-java@v3
+        with:
+          java-version: "23"
+          distribution: "temurin"
+          cache: "maven"
+
+      - name: Cache de dependências Maven
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: maven-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            maven-${{ runner.os }}-
+
+      - name: Build do artefato .jar
+        run: mvn clean package -DskipTests=false
+
+      - name: Upload do artefato de build
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-jar
+          path: target/
+
+      - name: Build da imagem Docker para teste
+        run: docker build -t pethopeapi:latest .
+
+      - name: Executar container Docker para teste
+        run: docker run -d -p 8080:8080 --name pethopeapi_container pethopeapi:latest
+
+      - name: Aguardar inicialização da aplicação por 10s
+        run: sleep 10
+
+      - name: Verificar saúde da aplicação
+        run: curl -f http://localhost:8080/api/actuator/health
+
+      - name: Parar container Docker de teste
+        run: docker stop pethopeapi_container
+
+  docker_image_push:
+    runs-on: ubuntu-latest
+    needs: build_and_test
+    if: github.ref == 'refs/heads/main'
+    outputs:
+      version: ${{ steps.generate_version.outputs.version }}
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Download do artefato de build
+        uses: actions/download-artifact@v4
+        with:
+          name: app-jar
+          path: target/
+
+      - name: Gerar versão
+        id: generate_version
+        run: |
+          LATEST_TAG=$(git describe --tags --match "v*" --abbrev=0 2>/dev/null || echo "v0.0.0")
+          echo "Tag mais recente encontrada: $LATEST_TAG"
+
+          VERSION=${LATEST_TAG#v}
+          MAJOR=$(echo $VERSION | cut -d. -f1)
+          MINOR=$(echo $VERSION | cut -d. -f2)
+          PATCH=$(echo $VERSION | cut -d. -f3)
+
+          BREAKING_CHANGE_COMMIT=$(git log $LATEST_TAG..HEAD --oneline --grep="^BREAKING CHANGE")
+          NEW_FEATURE_COMMIT=$(git log $LATEST_TAG..HEAD --oneline --grep="^feat")
+          BUG_FIX_COMMIT=$(git log $LATEST_TAG..HEAD --oneline --grep="^fix")
+  
+          if [ ! -z "$BREAKING_CHANGE_COMMIT" ]; then
+            MAJOR=$((MAJOR + 1))
+            MINOR=0
+            PATCH=0
+            echo "BREAKING CHANGE DETECTADO, INCREMENTANDO VERSÃO MAJOR"
+          elif [ ! -z "$NEW_FEATURE_COMMIT" ]; then
+            MINOR=$((MINOR + 1))
+            PATCH=0
+            echo "NOVA FUNCIONALIDADE DETECTADA, INCREMENTANDO VERSÃO MINOR"
+          elif [ ! -z "$BUG_FIX_COMMIT" ] && [ -z "$NEW_FEATURE_COMMIT" ]; then
+            PATCH=$((PATCH + 1))
+            echo "CORREÇÃO DE BUG DETECTADA, INCREMENTANDO VERSÃO PATCH"
+          else
+            PATCH=$((PATCH + 1))
+            echo "NENHUMA MUDANÇA RELEVANTE DETECTADA, INCREMENTANDO VERSÃO PATCH"
+          fi
+
+          NEW_VERSION="$MAJOR.$MINOR.$PATCH"
+          echo "VERSION=$NEW_VERSION" >> $GITHUB_ENV
+          echo "::set-output name=version::$NEW_VERSION"
+
+      - name: Build da imagem Docker para publicação
+        run: docker build -t pethopeapi:${{ steps.generate_version.outputs.version }} .
+
+      - name: Login no Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_ACCESS_TOKEN }}
+
+      - name: Tagear e publicar imagem Docker
+        run: |
+          IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/pethopeapi
+          echo "Enviando imagem versionada: $IMAGE_NAME:${{ steps.generate_version.outputs.version }}"
+          docker tag pethopeapi:${{ steps.generate_version.outputs.version }} $IMAGE_NAME:${{ steps.generate_version.outputs.version }}
+          docker push $IMAGE_NAME:${{ steps.generate_version.outputs.version }}
+          
+          echo "Enviando imagem mais recente: $IMAGE_NAME:latest"
+          docker tag pethopeapi:${{ steps.generate_version.outputs.version }} $IMAGE_NAME:latest
+          docker push $IMAGE_NAME:latest
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: docker_image_push
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v3
+
+      - name: Deploy no Render
+        env:
+          deploy_url: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: |
+          curl -X POST "$deploy_url"
+
+      - name: Exibir versão da Release
+        run: |
+          VERSION=${{ needs.docker_image_push.outputs.version }}
+          echo "===========================================" 
+          echo "IMPLANTAÇÃO CONCLUÍDA!"
+          echo "VERSÃO DE RELEASE: v$VERSION"
+          echo "==========================================="
