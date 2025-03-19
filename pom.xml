@@ -63,6 +63,7 @@
     </dependencies>
 
     <build>
+        <finalName>pethope</finalName> <!-- Define o nome do arquivo JAR gerado -->
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>

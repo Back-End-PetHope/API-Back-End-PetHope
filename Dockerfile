@@ -7,6 +7,6 @@ RUN mvn clean package -DskipTests
 #Criar imagem final para execução
 FROM eclipse-temurin:23-jdk-alpine
 WORKDIR /app
-COPY --from=build /app/target/pethope-0.0.1-SNAPSHOT.jar app.jar
+COPY --from=build /app/target/pethope.jar pethope.jar
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-jar", "pethope.jar"]
