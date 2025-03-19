@@ -33,13 +33,13 @@ jobs:
             maven-${{ runner.os }}-
 
       - name: Build and Test with Maven
-        run: mvn clean verify -DskipTests=false
+        run: mvn clean package -DskipTests=false
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: app-jar
-          path: target/pethope.jar
+          path: target/
 
       - name: Build Docker image
         run: docker build -t pethopeapi:latest .
