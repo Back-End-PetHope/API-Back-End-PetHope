@@ -102,7 +102,7 @@ jobs:
           IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/pethopeapi
           
           if [[ -n "${{ env.VERSION }}" && $VERSION != "latest" ]]; then
-            VERSION_TAG="pethopeapi-${{ env.VERSION }}"
+            VERSION_TAG="${{ env.VERSION }}"
             echo "Tagging image with: $VERSION_TAG"
             docker tag pethopeapi:latest $IMAGE_NAME:$VERSION_TAG
             docker push $IMAGE_NAME:$VERSION_TAG
