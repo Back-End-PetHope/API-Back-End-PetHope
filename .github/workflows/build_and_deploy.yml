@@ -41,7 +41,7 @@ jobs:
           name: app-jar
           path: target/
 
-      - name: Build Docker image
+      - name: Build Docker image for test
         run: docker build -t pethopeapi:latest .
 
       - name: Run Docker container for testing
@@ -71,11 +71,11 @@ jobs:
           name: app-jar
           path: target/
 
-      - name: Extract version from pull request branch (or dev_main* branch)
+      - name: Extract version from the source branch of the PR
         id: version
         run: |
-          if [[ $GITHUB_EVENT_NAME == "pull_request" ]]; then
-            PR_BRANCH="${{ github.head_ref }}"  
+          if [[ $GITHUB_EVENT_NAME == "push" && $GITHUB_REF == "refs/heads/main" ]]; then
+            PR_BRANCH="${{ github.head_ref }}"
             if [[ $PR_BRANCH == dev_main* ]]; then
               VERSION=$(echo $PR_BRANCH | sed -E 's/^dev_main_v([0-9]+\.[0-9]+\.[0-9]+)/\1/')
               echo "VERSION=$VERSION" >> $GITHUB_ENV
@@ -84,8 +84,18 @@ jobs:
             fi
           fi
 
-      - name: Build Docker image (rebuilding)
+      - name: Build Docker image for push
         run: docker build -t pethopeapi:latest .
+
+      - name: Check image version tag before pushing
+        run: |
+          IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/pethopeapi
+          if [[ -n "${{ env.VERSION }}" ]]; then
+            VERSION_TAG="pethopeapi-${{ env.VERSION }}"
+            echo "Image version tag: $VERSION_TAG"
+          else
+            echo "Using 'latest' tag for the image"
+          fi
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
