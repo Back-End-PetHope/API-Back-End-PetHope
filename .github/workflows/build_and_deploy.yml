@@ -41,7 +41,7 @@ jobs:
           name: app-jar
           path: target/
 
-      - name: Build Docker image
+      - name: Build Docker image for test
         run: docker build -t pethopeapi:latest .
 
       - name: Run Docker container for testing
@@ -84,7 +84,7 @@ jobs:
             fi
           fi
 
-      - name: Build Docker image (rebuilding)
+      - name: Build Docker image for push
         run: docker build -t pethopeapi:latest .
 
       - name: Log in to Docker Hub
