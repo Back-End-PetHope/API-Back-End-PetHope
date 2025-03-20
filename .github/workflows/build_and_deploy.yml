@@ -100,12 +100,12 @@ jobs:
       - name: Tag and Push Docker image
         run: |
           IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/pethopeapi
-          echo "Tagging image with version: $VERSION"
-          docker tag pethopeapi:$VERSION $IMAGE_NAME:$VERSION
-          docker push $IMAGE_NAME:$VERSION
           
-          echo "Tagging image with version: latest"
-          docker tag pethopeapi:latest $IMAGE_NAME:latest
+          echo "Tagging image: $IMAGE_NAME with version: $VERSION"
+          docker tag pethopeapi:latest $IMAGE_NAME:$VERSION
+          echo "Pushing $IMAGE_NAME:$VERSION"
+          docker push $IMAGE_NAME:$VERSION
+          echo "Pushing $IMAGE_NAME:latest"
           docker push $IMAGE_NAME:latest
 
   deploy:
