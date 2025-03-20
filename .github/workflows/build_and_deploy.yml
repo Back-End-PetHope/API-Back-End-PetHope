@@ -71,21 +71,17 @@ jobs:
           name: app-jar
           path: target/
 
-      - name: Extract version from the merged branch
+      - name: Extract version from the origin branch name
         id: version
         run: |
-          if [[ $GITHUB_EVENT_NAME == "push" && $GITHUB_REF == "refs/heads/main" ]]; then
-            COMMIT_MESSAGE=$(jq -r '.head_commit.message' $GITHUB_EVENT_PATH)
-            echo "Commit message: $COMMIT_MESSAGE"  
-            PR_BRANCH=$(echo $COMMIT_MESSAGE | grep -oP '(?<=Back-End-PetHope/)(\S+)')
-            echo "PR Branch: $PR_BRANCH" 
-
-            if [[ $PR_BRANCH =~ ^dev_main_v([0-9]+\.[0-9]+\.[0-9]+)([a-zA-Z0-9]*)$ ]]; then
-              VERSION="${BASH_REMATCH[1]}" 
-              echo "VERSION=$VERSION" >> $GITHUB_ENV  
-            else
-              echo "VERSION=latest" >> $GITHUB_ENV
-            fi
+          BRANCH_NAME="${GITHUB_HEAD_REF}"
+          echo "Branch name: $BRANCH_NAME"
+        
+          if [[ $BRANCH_NAME =~ ^dev_main_v([0-9]+\.[0-9]+\.[0-9]+) ]]; then
+            VERSION="${BASH_REMATCH[1]}" 
+            echo "VERSION=$VERSION" >> $GITHUB_ENV
+          else
+            echo "VERSION=latest" >> $GITHUB_ENV
           fi
 
       - name: Build Docker image for push
