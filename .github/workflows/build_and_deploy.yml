@@ -75,13 +75,16 @@ jobs:
         id: version
         run: |
           if [[ $GITHUB_EVENT_NAME == "push" && $GITHUB_REF == "refs/heads/main" ]]; then
-            PR_BRANCH=$(jq -r '.head_commit.message' $GITHUB_EVENT_PATH | grep -oE 'Merge pull request #[0-9]+ from (\S+)' | awk '{print $5}')
-          
-            if [[ $PR_BRANCH =~ ^dev_main_v([0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
-              VERSION="${BASH_REMATCH[1]}"  
+            COMMIT_MESSAGE=$(jq -r '.head_commit.message' $GITHUB_EVENT_PATH)
+            echo "Commit message: $COMMIT_MESSAGE"  
+            PR_BRANCH=$(echo $COMMIT_MESSAGE | grep -oP '(?<=Back-End-PetHope/)(\S+)')
+            echo "PR Branch: $PR_BRANCH" 
+
+            if [[ $PR_BRANCH =~ ^dev_main_v([0-9]+\.[0-9]+\.[0-9]+)([a-zA-Z0-9]*)$ ]]; then
+              VERSION="${BASH_REMATCH[1]}" 
               echo "VERSION=$VERSION" >> $GITHUB_ENV  
             else
-              echo "VERSION=latest" >> $GITHUB_ENV 
+              echo "VERSION=latest" >> $GITHUB_ENV
             fi
           fi
 
