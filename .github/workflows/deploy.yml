@@ -3,17 +3,21 @@ name: Deploy
 on:
   workflow_run:
     workflows: ["Build"]
+    branches: "main"
     types:
       - completed
 
 jobs:
   docker_build:
     runs-on: ubuntu-latest
-    if: github.event.workflow_run.conclusion == 'success' && github.ref == 'refs/heads/main'
+    if: github.event.workflow_run.conclusion == 'success'
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+
+      - name: Wait for artifact availability
+        run: sleep 10
 
       - name: Download build artifact
         uses: actions/download-artifact@v4
