@@ -1,4 +1,4 @@
-name: Build
+name: Build and Deploy
 
 on:
   push:
@@ -39,7 +39,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: app-jar
-          path: target/
+          path: target/*.jar
 
       - name: Build Docker image
         run: docker build -t pethopeapi:latest .
@@ -55,3 +55,45 @@ jobs:
 
       - name: Stop Docker container
         run: docker stop pethopeapi_container
+  docker_push:
+    runs-on: ubuntu-latest
+    needs: build_and_test
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Wait for artifact availability
+        run: sleep 10
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: app-jar
+          path: target/*.jar
+
+      - name: Build Docker image
+        run: docker build -t pethopeapi:latest .
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_ACCESS_TOKEN }}
+
+      - name: Push Docker image to Docker Hub
+        run: |
+          IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/pethopeapi
+          VERSION=latest
+          docker tag pethopeapi:latest $IMAGE_NAME:$VERSION
+          docker push $IMAGE_NAME:$VERSION
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: docker_push
+    steps:
+      - name: Trigger Render deployment
+        env:
+          deploy_url: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: |
+          curl -X POST "$deploy_url"
