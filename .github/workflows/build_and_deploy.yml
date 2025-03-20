@@ -71,6 +71,19 @@ jobs:
           name: app-jar
           path: target/
 
+      - name: Extract version from pull request branch (or dev_main* branch)
+        id: version
+        run: |
+          if [[ $GITHUB_EVENT_NAME == "pull_request" ]]; then
+            PR_BRANCH="${{ github.head_ref }}"  
+            if [[ $PR_BRANCH == dev_main* ]]; then
+              VERSION=$(echo $PR_BRANCH | sed -E 's/^dev_main_v([0-9]+\.[0-9]+\.[0-9]+)/\1/')
+              echo "VERSION=$VERSION" >> $GITHUB_ENV
+            else
+              echo "No versioning required for this branch." >> $GITHUB_ENV
+            fi
+          fi
+
       - name: Build Docker image (rebuilding)
         run: docker build -t pethopeapi:latest .
 
@@ -83,9 +96,13 @@ jobs:
       - name: Tag and Push Docker image
         run: |
           IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/pethopeapi
-          VERSION=latest
-          docker tag pethopeapi:latest $IMAGE_NAME:$VERSION
-          docker push $IMAGE_NAME:$VERSION
+          if [[ -n "${{ env.VERSION }}" ]]; then
+            VERSION_TAG="pethopeapi-${{ env.VERSION }}"  
+            docker tag pethopeapi:latest $IMAGE_NAME:$VERSION_TAG
+            docker push $IMAGE_NAME:$VERSION_TAG
+          fi
+          docker tag pethopeapi:latest $IMAGE_NAME:latest
+          docker push $IMAGE_NAME:latest
 
   deploy:
     runs-on: ubuntu-latest
