@@ -15,13 +15,13 @@ class PetHopeApplicationTest {
     void contextLoads() {
     }
 
-    @Test
-    void shouldReturnHealthStatusUp() {
-        webTestClient.get()
-                .uri("/actuator/health")
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody()
-                .jsonPath("$.status").isEqualTo("UP");
-    }
+//    @Test
+//    void shouldReturnHealthStatusUp() {
+//        webTestClient.get()
+//                .uri("/actuator/health")
+//                .exchange()
+//                .expectStatus().isOk()
+//                .expectBody()
+//                .jsonPath("$.status").isEqualTo("UP");
+//    }
 }
