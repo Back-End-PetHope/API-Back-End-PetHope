@@ -71,19 +71,12 @@ jobs:
           name: app-jar
           path: target/
 
-      - name: Extract version from the origin branch name
+      - name: Extract version from Git tags
         id: version
         run: |
-          BRANCH_NAME="${GITHUB_HEAD_REF}"
-          echo "Branch name: $BRANCH_NAME"
-          
-          if [[ $BRANCH_NAME =~ ^dev_main_v([0-9]+\.[0-9]+\.[0-9]+)x?$ ]]; then
-            VERSION="${BASH_REMATCH[1]}"
-            echo "VERSION=$VERSION" >> $GITHUB_ENV
-          else
-            VERSION="latest" 
-            echo "VERSION=$VERSION" >> $GITHUB_ENV
-          fi
+          VERSION=$(git describe --tags --match "version-v*" --abbrev=0 | sed 's/version-v//')
+          echo "Version found: $VERSION"
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Build Docker image for push
         run: docker build -t pethopeapi:latest .
