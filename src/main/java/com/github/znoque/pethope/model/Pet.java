@@ -1,9 +1,8 @@
-package com.github.znoque.adote_me_api.model.pet;
+package com.github.znoque.pethope.model;
 
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import org.hibernate.annotations.IdGeneratorType;
 
 @Entity
 @Table(name = "tb_pet")

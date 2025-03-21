@@ -1,4 +1,4 @@
-package com.github.znoque.adote_me_api.model.auth;
+package com.github.znoque.pethope.model;
 
 
 import jakarta.persistence.*;

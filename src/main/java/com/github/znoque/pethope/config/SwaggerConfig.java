@@ -1,4 +1,4 @@
-package com.github.znoque.adote_me_api.config;
+package com.github.znoque.pethope.config;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
@@ -10,6 +10,6 @@ public class SwaggerConfig {
 
     @Bean
     public OpenAPI SwaggerConfig() {
-        return new OpenAPI().info(new Info().title("adote-me-api").version("1.0"));
+        return new OpenAPI().info(new Info().title("pet-hope").version("1.0"));
     }
 }

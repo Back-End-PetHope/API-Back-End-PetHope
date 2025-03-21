@@ -1,6 +1,6 @@
-package com.github.znoque.adote_me_api.repository;
+package com.github.znoque.pethope.repository;
 
-import com.github.znoque.adote_me_api.model.auth.Auth;
+import com.github.znoque.pethope.model.Auth;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface UserRepository extends JpaRepository<Auth, Integer> {

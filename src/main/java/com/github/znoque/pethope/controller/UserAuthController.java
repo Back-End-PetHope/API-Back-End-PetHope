@@ -1,9 +1,9 @@
-package com.github.znoque.adote_me_api.controller;
+package com.github.znoque.pethope.controller;
 
 
-import com.github.znoque.adote_me_api.config.SwaggerDocumentacionConfig;
-import com.github.znoque.adote_me_api.dto.UserDto;
-import com.github.znoque.adote_me_api.services.AuthService;
+import com.github.znoque.pethope.config.SwaggerDocumentacionConfig;
+import com.github.znoque.pethope.dto.UserDto;
+import com.github.znoque.pethope.services.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;

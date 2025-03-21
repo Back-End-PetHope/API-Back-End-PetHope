@@ -1,4 +1,4 @@
-package com.github.znoque.adote_me_api.security;
+package com.github.znoque.pethope.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

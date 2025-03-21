@@ -1,9 +1,9 @@
-package com.github.znoque.adote_me_api.services;
+package com.github.znoque.pethope.services;
 
 
-import com.github.znoque.adote_me_api.dto.UserDto;
-import com.github.znoque.adote_me_api.model.auth.Auth;
-import com.github.znoque.adote_me_api.repository.UserRepository;
+import com.github.znoque.pethope.dto.UserDto;
+import com.github.znoque.pethope.model.Auth;
+import com.github.znoque.pethope.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 @Service

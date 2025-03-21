@@ -1,4 +1,4 @@
-package com.github.znoque.adote_me_api.config;
+package com.github.znoque.pethope.config;
 
 public class SwaggerDocumentacionConfig {
 

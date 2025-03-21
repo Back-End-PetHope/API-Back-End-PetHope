@@ -1,4 +1,4 @@
-package com.github.znoque.adote_me_api.dto;
+package com.github.znoque.pethope.dto;
 
 public record UserDto(String email, String password) {
 }

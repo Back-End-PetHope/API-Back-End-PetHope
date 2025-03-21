@@ -1,10 +1,9 @@
-package com.github.znoque.adote_me_api.controller;
+package com.github.znoque.pethope.controller;
 
-
-import com.github.znoque.adote_me_api.config.SwaggerDocumentacionConfig;
-import com.github.znoque.adote_me_api.dto.UserDto;
-import com.github.znoque.adote_me_api.model.auth.Auth;
-import com.github.znoque.adote_me_api.services.UserService;
+import com.github.znoque.pethope.config.SwaggerDocumentacionConfig;
+import com.github.znoque.pethope.dto.UserDto;
+import com.github.znoque.pethope.model.Auth;
+import com.github.znoque.pethope.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -19,8 +18,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-
 
 @RestController
 @RequestMapping("auth")
@@ -40,9 +37,9 @@ public class UserController {
             description = SwaggerDocumentacionConfig.DESCRICAO_USER
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "201",description = SwaggerDocumentacionConfig.RESPONSE_201),
-            @ApiResponse(responseCode = "422",description = SwaggerDocumentacionConfig.RESPONSE_422),
-            @ApiResponse(responseCode = "500",description = SwaggerDocumentacionConfig.RESPONSE_500)
+        @ApiResponse(responseCode = "201", description = SwaggerDocumentacionConfig.RESPONSE_201),
+        @ApiResponse(responseCode = "422", description = SwaggerDocumentacionConfig.RESPONSE_422),
+        @ApiResponse(responseCode = "500", description = SwaggerDocumentacionConfig.RESPONSE_500)
     })
     public ResponseEntity<?> createUser(@RequestBody @Valid UserDto data) {
 
