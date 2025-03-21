@@ -4,10 +4,11 @@ on:
   push:
     branches:
       - "main"
-      - "dev_main*"
+      - "develop"
   pull_request:
     branches:
       - "main"
+      - "develop"
 
 jobs:
   build_and_test:
@@ -71,15 +72,16 @@ jobs:
           name: app-jar
           path: target/
 
-      - name: Extract version from Git tags
+      - name: Extract version
         id: version
         run: |
-          VERSION=$(git describe --tags --match "version-v*" --abbrev=0 | sed 's/version-v//')
-          echo "Version found: $VERSION"
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          TAG=$(git describe --tags --match "v*" --abbrev=0 | sed 's/v//')
+          if [ -z "$TAG" ]; then TAG="0.0.1"; fi
+          echo "Version: $TAG"
+          echo "VERSION=$TAG" >> $GITHUB_ENV
 
       - name: Build Docker image for push
-        run: docker build -t pethopeapi:latest .
+        run: docker build --build-arg VERSION=${{ env.VERSION }} -t pethopeapi:${{ env.VERSION }} .
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
@@ -90,17 +92,13 @@ jobs:
       - name: Tag and Push Docker image
         run: |
           IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/pethopeapi
-          
-          echo "Tagging image with version: $VERSION"
-          docker tag pethopeapi:latest $IMAGE_NAME:$VERSION
-          echo "Pushing $IMAGE_NAME:$VERSION"
-          docker push $IMAGE_NAME:$VERSION
-          
-          if [[ "$VERSION" != "latest" ]]; then
-            docker tag pethopeapi:latest $IMAGE_NAME:latest
-            echo "Pushing $IMAGE_NAME:latest"
-            docker push $IMAGE_NAME:latest
-          fi
+          echo "Pushing $IMAGE_NAME:${{ env.VERSION }}"
+          docker tag pethopeapi:${{ env.VERSION }} $IMAGE_NAME:${{ env.VERSION }}
+          docker push $IMAGE_NAME:${{ env.VERSION }}
+
+          docker tag pethopeapi:${{ env.VERSION }} $IMAGE_NAME:latest
+          docker push $IMAGE_NAME:latest
+
 
   deploy:
     runs-on: ubuntu-latest
@@ -113,3 +111,19 @@ jobs:
           deploy_url: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
         run: |
           curl -X POST "$deploy_url"
+
+  tag_release:
+    runs-on: ubuntu-latest
+    needs: deploy
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Create Git Tag
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git tag -a "v${{ env.VERSION }}" -m "Release version ${{ env.VERSION }}"
+          git push origin "v${{ env.VERSION }}"
