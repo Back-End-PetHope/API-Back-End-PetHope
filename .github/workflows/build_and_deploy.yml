@@ -76,12 +76,13 @@ jobs:
         run: |
           BRANCH_NAME="${GITHUB_HEAD_REF}"
           echo "Branch name: $BRANCH_NAME"
-        
-          if [[ $BRANCH_NAME =~ ^dev_main_v([0-9]+\.[0-9]+\.[0-9]+) ]]; then
-            VERSION="${BASH_REMATCH[1]}" 
+          
+          if [[ $BRANCH_NAME =~ ^dev_main_v([0-9]+\.[0-9]+\.[0-9]+)x?$ ]]; then
+            VERSION="${BASH_REMATCH[1]}"
             echo "VERSION=$VERSION" >> $GITHUB_ENV
           else
-            echo "VERSION=latest" >> $GITHUB_ENV
+            VERSION="latest" 
+            echo "VERSION=$VERSION" >> $GITHUB_ENV
           fi
 
       - name: Build Docker image for push
@@ -97,12 +98,16 @@ jobs:
         run: |
           IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/pethopeapi
           
-          echo "Tagging image: $IMAGE_NAME with version: $VERSION"
+          echo "Tagging image with version: $VERSION"
           docker tag pethopeapi:latest $IMAGE_NAME:$VERSION
           echo "Pushing $IMAGE_NAME:$VERSION"
           docker push $IMAGE_NAME:$VERSION
-          echo "Pushing $IMAGE_NAME:latest"
-          docker push $IMAGE_NAME:latest
+          
+          if [[ "$VERSION" != "latest" ]]; then
+            docker tag pethopeapi:latest $IMAGE_NAME:latest
+            echo "Pushing $IMAGE_NAME:latest"
+            docker push $IMAGE_NAME:latest
+          fi
 
   deploy:
     runs-on: ubuntu-latest
