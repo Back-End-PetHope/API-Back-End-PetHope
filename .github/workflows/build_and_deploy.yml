@@ -84,7 +84,7 @@ jobs:
           PATCH=$(echo $VERSION | cut -d. -f3)
 
           # Verificar se houve BREAKING CHANGE (alterações de versão major)
-          BREAKING_CHANGE_COMMIT=$(git log --oneline --grep="BREAKING CHANGE" --since="`git describe --tags --match 'v*' --abbrev=0`")
+          BREAKING_CHANGE_COMMIT=$(git log --oneline --grep="^BREAKING CHANGE" --since="`git describe --tags --match 'v*' --abbrev=0`")
           if [ ! -z "$BREAKING_CHANGE_COMMIT" ]; then
             MAJOR=$((MAJOR + 1))
             MINOR=0
@@ -160,4 +160,3 @@ jobs:
           echo "IMPLANTAÇÃO CONCLUÍDA!"
           echo "VERSÃO DE RELEASE: v$VERSION"
           echo "==========================================="
-
