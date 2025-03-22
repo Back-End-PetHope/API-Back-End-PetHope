@@ -45,7 +45,7 @@ jobs:
       - name: Executar container Docker para teste
         run: docker run -d -p 8080:8080 --name pethopeapi_container pethopeapi:latest
 
-      - name: Aguardar inicialização da aplicação
+      - name: Aguardar inicialização da aplicação por 10s
         run: sleep 10
 
       - name: Verificar saúde da aplicação
@@ -59,7 +59,7 @@ jobs:
     needs: build_and_test
     if: github.ref == 'refs/heads/main'
     outputs:
-      version: ${{ steps.calculate_version.outputs.version }} # Aqui passamos a versão como output
+      version: ${{ steps.generate_version.outputs.version }}
     steps:
       - name: Checkout do código
         uses: actions/checkout@v3
@@ -72,8 +72,8 @@ jobs:
           name: app-jar
           path: target/
 
-      - name: Calcular versão
-        id: calculate_version
+      - name: Gerar versão
+        id: generate_version
         run: |
           LATEST_TAG=$(git describe --tags --match "v*" --abbrev=0 2>/dev/null || echo "v0.0.0")
           echo "Tag mais recente encontrada: $LATEST_TAG"
@@ -109,7 +109,7 @@ jobs:
           echo "::set-output name=version::$NEW_VERSION"
 
       - name: Build da imagem Docker para publicação
-        run: docker build -t pethopeapi:${{ steps.calculate_version.outputs.version }} .
+        run: docker build -t pethopeapi:${{ steps.generate_version.outputs.version }} .
 
       - name: Login no Docker Hub
         uses: docker/login-action@v2
@@ -120,12 +120,12 @@ jobs:
       - name: Tagear e publicar imagem Docker
         run: |
           IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/pethopeapi
-          echo "Enviando imagem versionada: $IMAGE_NAME:${{ steps.calculate_version.outputs.version }}"
-          docker tag pethopeapi:${{ steps.calculate_version.outputs.version }} $IMAGE_NAME:${{ steps.calculate_version.outputs.version }}
-          docker push $IMAGE_NAME:${{ steps.calculate_version.outputs.version }}
+          echo "Enviando imagem versionada: $IMAGE_NAME:${{ steps.generate_version.outputs.version }}"
+          docker tag pethopeapi:${{ steps.generate_version.outputs.version }} $IMAGE_NAME:${{ steps.generate_version.outputs.version }}
+          docker push $IMAGE_NAME:${{ steps.generate_version.outputs.version }}
           
           echo "Enviando imagem mais recente: $IMAGE_NAME:latest"
-          docker tag pethopeapi:${{ steps.calculate_version.outputs.version }} $IMAGE_NAME:latest
+          docker tag pethopeapi:${{ steps.generate_version.outputs.version }} $IMAGE_NAME:latest
           docker push $IMAGE_NAME:latest
 
   deploy:
