@@ -39,7 +39,7 @@ jobs:
           name: app-jar
           path: target/
 
-      - name: Buil da imagem Docker para teste
+      - name: Build da imagem Docker para teste
         run: docker build -t pethopeapi:latest .
 
       - name: Executar container Docker para teste
@@ -58,6 +58,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: build_and_test
     if: github.ref == 'refs/heads/main'
+    outputs:
+      version: ${{ steps.calculate_version.outputs.version }} # Aqui passamos a versão como output
     steps:
       - name: Checkout do código
         uses: actions/checkout@v3
@@ -105,20 +107,20 @@ jobs:
             echo "CORREÇÃO DE BUG DETECTADA, INCREMENTANDO VERSÃO PATCH"
           fi
 
+          # Caso não haja nenhuma mudança relevante
           if [ -z "$BREAKING_CHANGE_COMMIT" ] && [ -z "$NEW_FEATURE_COMMIT" ] && [ -z "$BUG_FIX_COMMIT" ]; then
             PATCH=$((PATCH + 1))
             echo "NENHUMA MUDANÇA RELEVANTE DETECTADA, INCREMENTANDO VERSÃO PATCH"
           fi
 
+          # Gerar a nova versão
           NEW_VERSION="$MAJOR.$MINOR.$PATCH"
           echo "VERSION=$NEW_VERSION" >> $GITHUB_ENV
           
-          echo "===========================================" 
-          echo "BUILD DE IMAGEM DOCKER COM VERSÃO: $NEW_VERSION"
-          echo "===========================================" 
+          echo "::set-output name=version::$NEW_VERSION" 
 
       - name: Build da imagem Docker para publicação
-        run: docker build -t pethopeapi:${{ env.VERSION }} .
+        run: docker build -t pethopeapi:${{ steps.calculate_version.outputs.version }} .
 
       - name: Login no Docker Hub
         uses: docker/login-action@v2
@@ -129,12 +131,12 @@ jobs:
       - name: Tagear e publicar imagem Docker
         run: |
           IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/pethopeapi
-          echo "Enviando imagem versionada: $IMAGE_NAME:${{ env.VERSION }}"
-          docker tag pethopeapi:${{ env.VERSION }} $IMAGE_NAME:${{ env.VERSION }}
-          docker push $IMAGE_NAME:${{ env.VERSION }}
+          echo "Enviando imagem versionada: $IMAGE_NAME:${{ steps.calculate_version.outputs.version }}"
+          docker tag pethopeapi:${{ steps.calculate_version.outputs.version }} $IMAGE_NAME:${{ steps.calculate_version.outputs.version }}
+          docker push $IMAGE_NAME:${{ steps.calculate_version.outputs.version }}
           
           echo "Enviando imagem mais recente: $IMAGE_NAME:latest"
-          docker tag pethopeapi:${{ env.VERSION }} $IMAGE_NAME:latest
+          docker tag pethopeapi:${{ steps.calculate_version.outputs.version }} $IMAGE_NAME:latest
           docker push $IMAGE_NAME:latest
 
   deploy:
@@ -142,6 +144,9 @@ jobs:
     needs: docker_image_push
     if: github.ref == 'refs/heads/main'
     steps:
+      - name: Checkout do código
+        uses: actions/checkout@v3
+
       - name: Deploy no Render
         env:
           deploy_url: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
@@ -150,7 +155,7 @@ jobs:
 
       - name: Exibir versão da Release
         run: |
-          VERSION=${{ env.VERSION }}
+          VERSION=${{ needs.docker_image_push.outputs.version }}
           echo "===========================================" 
           echo "IMPLANTAÇÃO CONCLUÍDA!"
           echo "VERSÃO DE RELEASE: v$VERSION"
