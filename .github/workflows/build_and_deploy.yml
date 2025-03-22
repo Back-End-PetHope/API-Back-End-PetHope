@@ -83,8 +83,7 @@ jobs:
           MINOR=$(echo $VERSION | cut -d. -f2)
           PATCH=$(echo $VERSION | cut -d. -f3)
 
-          # Verificar se houve BREAKING CHANGE (alterações de versão major)
-          BREAKING_CHANGE_COMMIT=$(git log --oneline --grep="^BREAKING CHANGE" --since="$LATEST_TAG")
+          BREAKING_CHANGE_COMMIT=$(git log $LATEST_TAG..HEAD --oneline --grep="^BREAKING CHANGE")
           if [ ! -z "$BREAKING_CHANGE_COMMIT" ]; then
             MAJOR=$((MAJOR + 1))
             MINOR=0
@@ -92,33 +91,27 @@ jobs:
             echo "BREAKING CHANGE DETECTADO, INCREMENTANDO VERSÃO MAJOR"
           fi
 
-          # Verificar se houve novos recursos (alterações de versão minor)
-          NEW_FEATURE_COMMIT=$(git log --oneline --grep="^feat" --since="$LATEST_TAG")
+          NEW_FEATURE_COMMIT=$(git log $LATEST_TAG..HEAD --oneline --grep="^feat")
           if [ ! -z "$NEW_FEATURE_COMMIT" ]; then
             MINOR=$((MINOR + 1))
             PATCH=0
             echo "NOVA FUNCIONALIDADE DETECTADA, INCREMENTANDO VERSÃO MINOR"
           fi
 
-          # Verificar se houve correções de bugs (alterações de versão patch)
-          BUG_FIX_COMMIT=$(git log --oneline --grep="^fix" --since="$LATEST_TAG")
+          BUG_FIX_COMMIT=$(git log $LATEST_TAG..HEAD --oneline --grep="^fix")
           if [ ! -z "$BUG_FIX_COMMIT" ]; then
             PATCH=$((PATCH + 1))
             echo "CORREÇÃO DE BUG DETECTADA, INCREMENTANDO VERSÃO PATCH"
           fi
 
-          # Caso não haja nenhuma mudança relevante
           if [ -z "$BREAKING_CHANGE_COMMIT" ] && [ -z "$NEW_FEATURE_COMMIT" ] && [ -z "$BUG_FIX_COMMIT" ]; then
             PATCH=$((PATCH + 1))
             echo "NENHUMA MUDANÇA RELEVANTE DETECTADA, INCREMENTANDO VERSÃO PATCH"
           fi
 
-          # Gerar a nova versão
           NEW_VERSION="$MAJOR.$MINOR.$PATCH"
           echo "VERSION=$NEW_VERSION" >> $GITHUB_ENV
-
-          echo "::set-output name=version::$NEW_VERSION" 
-
+          echo "::set-output name=version::$NEW_VERSION"
 
       - name: Build da imagem Docker para publicação
         run: docker build -t pethopeapi:${{ steps.calculate_version.outputs.version }} .
