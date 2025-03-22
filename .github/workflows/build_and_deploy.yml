@@ -1,5 +1,4 @@
-name: Build and Deploy
-
+name: Build e Deploy
 on:
   push:
     branches:
@@ -12,19 +11,18 @@ on:
 jobs:
   build_and_test:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
+      - name: Checkout do código
         uses: actions/checkout@v3
 
-      - name: Set up JDK 23
+      - name: Configurar JDK 23
         uses: actions/setup-java@v3
         with:
           java-version: "23"
           distribution: "temurin"
           cache: "maven"
 
-      - name: Cache Maven dependencies
+      - name: Cache de dependências Maven
         uses: actions/cache@v3
         with:
           path: ~/.m2/repository
@@ -32,97 +30,128 @@ jobs:
           restore-keys: |
             maven-${{ runner.os }}-
 
-      - name: Build and Test with Maven
+      - name: Build do artefato .jar
         run: mvn clean package -DskipTests=false
 
-      - name: Upload build artifact
+      - name: Upload do artefato de build
         uses: actions/upload-artifact@v4
         with:
           name: app-jar
           path: target/
 
-      - name: Build Docker image for test
+      - name: Buil da imagem Docker para teste
         run: docker build -t pethopeapi:latest .
 
-      - name: Run Docker container for testing
+      - name: Executar container Docker para teste
         run: docker run -d -p 8080:8080 --name pethopeapi_container pethopeapi:latest
 
-      - name: Wait for the application to start
+      - name: Aguardar inicialização da aplicação
         run: sleep 10
 
-      - name: Run health check
+      - name: Verificar saúde da aplicação
         run: curl -f http://localhost:8080/api/actuator/health
 
-      - name: Stop Docker container
+      - name: Parar container Docker de teste
         run: docker stop pethopeapi_container
 
-  docker_push:
+  docker_image_push:
     runs-on: ubuntu-latest
     needs: build_and_test
     if: github.ref == 'refs/heads/main'
-
     steps:
-      - name: Checkout code
+      - name: Checkout do código
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
-      - name: Download build artifact
+      - name: Download do artefato de build
         uses: actions/download-artifact@v4
         with:
           name: app-jar
           path: target/
 
-      - name: Extract version
-        id: version
+      - name: Calcular versão
+        id: calculate_version
         run: |
-          TAG=$(git describe --tags --match "v*" --abbrev=0 | sed 's/v//')
-          if [ -z "$TAG" ]; then TAG="0.0.1"; fi
-          echo "Version: $TAG"
-          echo "VERSION=$TAG" >> $GITHUB_ENV
+          LATEST_TAG=$(git describe --tags --match "v*" --abbrev=0 2>/dev/null || echo "v0.0.0")
+          echo "Tag mais recente encontrada: $LATEST_TAG"
+          
+          VERSION=${LATEST_TAG#v}
+          MAJOR=$(echo $VERSION | cut -d. -f1)
+          MINOR=$(echo $VERSION | cut -d. -f2)
+          PATCH=$(echo $VERSION | cut -d. -f3)
 
-      - name: Build Docker image for push
-        run: docker build --build-arg VERSION=${{ env.VERSION }} -t pethopeapi:${{ env.VERSION }} .
+          # Verificar se houve BREAKING CHANGE (alterações de versão major)
+          BREAKING_CHANGE_COMMIT=$(git log --oneline --grep="BREAKING CHANGE" --since="`git describe --tags --match 'v*' --abbrev=0`")
+          if [ ! -z "$BREAKING_CHANGE_COMMIT" ]; then
+            MAJOR=$((MAJOR + 1))
+            MINOR=0
+            PATCH=0
+            echo "BREAKING CHANGE DETECTADO, INCREMENTANDO VERSÃO MAJOR"
+          fi
 
-      - name: Log in to Docker Hub
+          # Verificar se houve novos recursos (alterações de versão minor)
+          NEW_FEATURE_COMMIT=$(git log --oneline --grep="^feat" --since="`git describe --tags --match 'v*' --abbrev=0`")
+          if [ ! -z "$NEW_FEATURE_COMMIT" ]; then
+            MINOR=$((MINOR + 1))
+            PATCH=0
+            echo "NOVA FUNCIONALIDADE DETECTADA, INCREMENTANDO VERSÃO MINOR"
+          fi
+
+          # Verificar se houve correções de bugs (alterações de versão patch)
+          BUG_FIX_COMMIT=$(git log --oneline --grep="^fix" --since="`git describe --tags --match 'v*' --abbrev=0`")
+          if [ ! -z "$BUG_FIX_COMMIT" ]; then
+            PATCH=$((PATCH + 1))
+            echo "CORREÇÃO DE BUG DETECTADA, INCREMENTANDO VERSÃO PATCH"
+          fi
+
+          if [ -z "$BREAKING_CHANGE_COMMIT" ] && [ -z "$NEW_FEATURE_COMMIT" ] && [ -z "$BUG_FIX_COMMIT" ]; then
+            PATCH=$((PATCH + 1))
+            echo "NENHUMA MUDANÇA RELEVANTE DETECTADA, INCREMENTANDO VERSÃO PATCH"
+          fi
+
+          NEW_VERSION="$MAJOR.$MINOR.$PATCH"
+          echo "VERSION=$NEW_VERSION" >> $GITHUB_ENV
+          
+          echo "===========================================" 
+          echo "BUILD DE IMAGEM DOCKER COM VERSÃO: $NEW_VERSION"
+          echo "===========================================" 
+
+      - name: Build da imagem Docker para publicação
+        run: docker build -t pethopeapi:${{ env.VERSION }} .
+
+      - name: Login no Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_ACCESS_TOKEN }}
 
-      - name: Tag and Push Docker image
+      - name: Tagear e publicar imagem Docker
         run: |
           IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/pethopeapi
-          echo "Pushing $IMAGE_NAME:${{ env.VERSION }}"
+          echo "Enviando imagem versionada: $IMAGE_NAME:${{ env.VERSION }}"
           docker tag pethopeapi:${{ env.VERSION }} $IMAGE_NAME:${{ env.VERSION }}
           docker push $IMAGE_NAME:${{ env.VERSION }}
-
+          
+          echo "Enviando imagem mais recente: $IMAGE_NAME:latest"
           docker tag pethopeapi:${{ env.VERSION }} $IMAGE_NAME:latest
           docker push $IMAGE_NAME:latest
 
-
   deploy:
     runs-on: ubuntu-latest
-    needs: docker_push
+    needs: docker_image_push
     if: github.ref == 'refs/heads/main'
-
     steps:
-      - name: Trigger Render deployment
+      - name: Deploy no Render
         env:
           deploy_url: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
         run: |
           curl -X POST "$deploy_url"
 
-  tag_release:
-    runs-on: ubuntu-latest
-    needs: deploy
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - name: Create Git Tag
+      - name: Exibir versão da Release
         run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
-          git tag -a "v${{ env.VERSION }}" -m "Release version ${{ env.VERSION }}"
-          git push origin "v${{ env.VERSION }}"
+          VERSION=${{ env.VERSION }}
+          echo "===========================================" 
+          echo "IMPLANTAÇÃO CONCLUÍDA!"
+          echo "VERSÃO DE RELEASE: v$VERSION"
+          echo "==========================================="
