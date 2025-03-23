@@ -1,33 +1,42 @@
 package com.github.znoque.adote_me_api.services;
 
-import com.github.znoque.adote_me_api.model.auth.Auth;
-import com.github.znoque.adote_me_api.dto.UserDto;
+
+import com.github.znoque.adote_me_api.dto.user.UserDto;
+import com.github.znoque.adote_me_api.model.user.User;
 import com.github.znoque.adote_me_api.repository.UserRepository;
-import com.github.znoque.adote_me_api.security.SecutiryConfig;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import jakarta.persistence.EntityNotFoundException;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserService {
 
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
     }
 
-    //alterar para protected depois e testar
-    public Auth saveUser(UserDto data) {
-
-        Auth isEmailExisting  = userRepository.findByEmail(data.email());
-        if (isEmailExisting  != null) {
-            throw new RuntimeException("Usuario ja criado");
-        }
-        Auth auth = new Auth();
-        auth.setEmail(data.email());
-        auth.setPassword(passwordEncoder.encode(data.password()));
-        return userRepository.save(auth);
+    public List<User> UserFindAll() {
+        return userRepository.findAll();
     }
+
+    public Optional<User> UserFindByid(int id) {
+        return Optional.ofNullable(userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Usuario não encontrado com o ID: "+id)));
+    }
+
+//    public User UserSave(UserDto data){
+//        if(userRepository.existsById(data.id)) {
+//            throw new DataIntegrityViolationException("Usuario ja está cadastrado");
+//        }
+//        User user = new User();
+//
+//    }
+
+
 }

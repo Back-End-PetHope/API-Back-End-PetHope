@@ -2,7 +2,8 @@ package com.github.znoque.adote_me_api.controller;
 
 
 import com.github.znoque.adote_me_api.config.SwaggerDocumentacionConfig;
-import com.github.znoque.adote_me_api.dto.UserDto;
+import com.github.znoque.adote_me_api.dto.auth.AuthDto;
+import com.github.znoque.adote_me_api.model.auth.Auth;
 import com.github.znoque.adote_me_api.services.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -10,6 +11,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,13 +26,37 @@ import java.util.Map;
 @RestController
 @RequestMapping("auth")
 @Tag(name = SwaggerDocumentacionConfig.TAG_AUTH)
-public class UserAuthController {
+public class AuthController {
 
+    private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
     private final AuthService authService;
 
-    public UserAuthController(AuthService authService) {
+    public AuthController(AuthService authService) {
         this.authService = authService;
+    }
+
+    @PostMapping("/create")
+    @Operation(
+            summary = SwaggerDocumentacionConfig.SUMARIO_USER,
+            description = SwaggerDocumentacionConfig.DESCRICAO_USER
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "201",description = SwaggerDocumentacionConfig.RESPONSE_201),
+            @ApiResponse(responseCode = "422",description = SwaggerDocumentacionConfig.RESPONSE_422),
+            @ApiResponse(responseCode = "500",description = SwaggerDocumentacionConfig.RESPONSE_500)
+    })
+    public ResponseEntity<?> createUser(@RequestBody @Valid AuthDto data) {
+
+        try {
+            Auth auth = authService.saveUser(data);
+            return ResponseEntity.status(HttpStatus.CREATED).body(auth);
+        } catch (DataIntegrityViolationException e) {
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(e.getMessage());
+        } catch (Exception e) {
+            logger.error("Ocorreu um erro inesperado", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
     }
 
     @PostMapping("/login")
@@ -39,10 +66,10 @@ public class UserAuthController {
             @ApiResponse(responseCode = "404", description = SwaggerDocumentacionConfig.RESPONSE_404),
             @ApiResponse(responseCode = "500", description = SwaggerDocumentacionConfig.RESPONSE_500)
     })
-    public ResponseEntity<?> loginUser (@RequestBody @Valid UserDto data) {
+    public ResponseEntity<?> loginUser (@RequestBody @Valid AuthDto data) {
 
         try {
-            UserDto userLogin = authService.authenticate(data);
+            AuthDto userLogin = authService.authenticate(data);
             return ResponseEntity.status(HttpStatus.OK).body(userLogin);
         } catch (DataIntegrityViolationException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());

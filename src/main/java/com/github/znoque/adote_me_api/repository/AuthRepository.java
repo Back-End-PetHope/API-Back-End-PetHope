@@ -1,12 +1,11 @@
 package com.github.znoque.adote_me_api.repository;
 
 import com.github.znoque.adote_me_api.model.auth.Auth;
-import com.github.znoque.adote_me_api.model.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Integer> {
+public interface AuthRepository extends JpaRepository<Auth, Integer> {
 
-    boolean findByIdUser(String id);
+    Auth findByEmail(String email);
 }
