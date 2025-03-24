@@ -17,7 +17,7 @@ public class User {
     @Column(name = "user_tipo", nullable = false)
     private TypeUser userTipo;
 
-    @Column(name = "user_cpf_cnpj", nullable = false, unique = true, length = 14)
+    @Column(name = "user_cpfCnpj", nullable = false, unique = true, length = 14)
     @NotNull
     private String userCpfCnpj;
 
