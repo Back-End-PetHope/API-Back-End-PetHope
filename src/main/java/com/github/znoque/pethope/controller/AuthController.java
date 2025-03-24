@@ -69,7 +69,7 @@ public class AuthController {
 
         try {
             AuthDto userLogin = authService.authenticate(data);
-            return ResponseEntity.status(HttpStatus.OK).body(userLogin);
+            return ResponseEntity.status(HttpStatus.OK).build();
         } catch (DataIntegrityViolationException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (Exception e) {
@@ -91,7 +91,7 @@ public class AuthController {
     @GetMapping("/redirect-to-google")
     @Operation(summary = SwaggerDocumentacionConfig.SUMARIO_GOOGLE_REDIRECT, description = SwaggerDocumentacionConfig.DESCRICAO_GOOGLE_REDIRECT)
     public void redirectLink(HttpServletResponse response) throws IOException {
-        response.sendRedirect("/oauth2/authorization/google");
+        response.sendRedirect("/api/oauth2/authorization/google");
     }
 
 }

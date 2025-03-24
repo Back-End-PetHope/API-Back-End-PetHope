@@ -11,6 +11,6 @@ public class SwaggerConfig {
 
     @Bean
     public OpenAPI SwaggerConfig() {
-        return new OpenAPI().info(new Info().title("adote-me-api").version("1.0"));
+        return new OpenAPI().info(new Info().title("PetHope").version("1.0"));
     }
 }
