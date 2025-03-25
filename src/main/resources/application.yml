@@ -1,4 +1,20 @@
 spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/db_adote_me_api
+    username: root
+    password: '4633'
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: create-drop
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: 871356216202-asr2s8nvssnuejb1273nn6r58kptfrqe.apps.googleusercontent.com
+            client-secret: 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
+
   application:
     name: pethope
 
@@ -6,8 +22,24 @@ server:
   servlet:
     context-path: /api
 
+error:
+  include-stacktrace: never
+  include-message: never
+
 management:
   endpoints:
     web:
       exposure:
         include: health
+
+
+#  spring.application.name=adote-me-api
+#  spring.datasource.username=root
+#  spring.datasource.password=@R0ot@8545
+#  spring.datasource.url=jdbc:mysql://localhost:3306/db_adote_me_api
+#  spring.jpa.show-sql=true
+#  spring.jpa.hibernate.ddl-auto=create-drop
+#  spring.security.oauth2.client.registration.google.client-id=871356216202-asr2s8nvssnuejb1273nn6r58kptfrqe.apps.googleusercontent.com
+#  spring.security.oauth2.client.registration.google.client-secret=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
+#  server.error.include-stacktrace=never
+#  server.error.include-message=never

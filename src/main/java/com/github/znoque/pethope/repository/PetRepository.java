@@ -8,11 +8,9 @@ import java.util.List;
 
 public interface PetRepository extends JpaRepository<Pet, Integer> {
 
-    boolean findById (String id);
-
     List<Pet> findByEspecie (Especie especie);
 
     List<Pet> findByRaca (String raca);
 
-    List<Pet> findByIdade (int idadeMin, int idadeMax);
+    List<Pet> findByIdadeBetween (int idadeMin, int idadeMax);
 }
