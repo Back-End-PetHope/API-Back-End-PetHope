@@ -83,25 +83,27 @@ jobs:
           MINOR=$(echo $VERSION | cut -d. -f2)
           PATCH=$(echo $VERSION | cut -d. -f3)
 
-          BREAKING_CHANGE_COMMIT=$(git log $LATEST_TAG..HEAD --oneline --grep="^BREAKING CHANGE")
-          NEW_FEATURE_COMMIT=$(git log $LATEST_TAG..HEAD --oneline --grep="^feat")
           BUG_FIX_COMMIT=$(git log $LATEST_TAG..HEAD --oneline --grep="^fix")
-  
+          NEW_FEATURE_COMMIT=$(git log $LATEST_TAG..HEAD --oneline --grep="^feat")
+          BREAKING_CHANGE_COMMIT=$(git log $LATEST_TAG..HEAD --oneline --grep="^BREAKING CHANGE")
+
+          if [ ! -z "$BUG_FIX_COMMIT" ]; then
+            PATCH=$((PATCH + 1))
+          fi
+
+          if [ ! -z "$NEW_FEATURE_COMMIT" ]; then
+            MINOR=$((MINOR + 1))
+            PATCH=0
+          fi
+
           if [ ! -z "$BREAKING_CHANGE_COMMIT" ]; then
             MAJOR=$((MAJOR + 1))
             MINOR=0
             PATCH=0
-            echo "BREAKING CHANGE DETECTADO, INCREMENTANDO VERSÃO MAJOR"
-          elif [ ! -z "$NEW_FEATURE_COMMIT" ]; then
-            MINOR=$((MINOR + 1))
-            PATCH=0
-            echo "NOVA FUNCIONALIDADE DETECTADA, INCREMENTANDO VERSÃO MINOR"
-          elif [ ! -z "$BUG_FIX_COMMIT" ] && [ -z "$NEW_FEATURE_COMMIT" ]; then
+          fi
+
+          if [ -z "$BREAKING_CHANGE_COMMIT" ] && [ -z "$NEW_FEATURE_COMMIT" ] && [ -z "$BUG_FIX_COMMIT" ]; then
             PATCH=$((PATCH + 1))
-            echo "CORREÇÃO DE BUG DETECTADA, INCREMENTANDO VERSÃO PATCH"
-          else
-            PATCH=$((PATCH + 1))
-            echo "NENHUMA MUDANÇA RELEVANTE DETECTADA, INCREMENTANDO VERSÃO PATCH"
           fi
 
           NEW_VERSION="$MAJOR.$MINOR.$PATCH"
