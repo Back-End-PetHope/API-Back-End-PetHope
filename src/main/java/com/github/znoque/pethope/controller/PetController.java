@@ -8,10 +8,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/pets")
@@ -25,6 +24,24 @@ public class PetController {
     public ResponseEntity<Pet> createPet(@RequestBody @Valid PetDto petDto) {
         Pet pet = petService.savePet(petDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(pet);
+    }
+
+    @PutMapping("/v1/update/{id}")
+    public ResponseEntity<Pet> updatePet(@PathVariable int id, @RequestBody @Valid PetDto petDto) {
+        Pet updatedPet = petService.updatePet(petDto, id);
+        return ResponseEntity.ok(updatedPet);
+    }
+
+    @DeleteMapping("/v1/delete/{id}")
+    public ResponseEntity<Void> deletePet(@PathVariable int id) {
+        petService.deletePetById(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/v1/getById/{id}")
+    public ResponseEntity<Pet> getPetById(@PathVariable int id) {
+        Pet pet = petService.getPetById(id);
+        return ResponseEntity.ok(pet);
     }
 
 }
