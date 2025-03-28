@@ -15,7 +15,14 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth ->
-                        auth.anyRequest().authenticated())
+                        auth.requestMatchers(
+                                        "/swagger-ui/**",
+                                        "/v3/api-docs/**",
+                                        "/users/login",
+                                        "/users/create"
+                                )
+                                .permitAll()
+                                .anyRequest().authenticated())
                 .oauth2Login(form ->
                         form.defaultSuccessUrl("/auth/auth-google-info",true));
         return http.build();

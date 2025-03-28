@@ -1,0 +1,19 @@
+version: '3.8'
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: pethope_db
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: pethope@123
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docker/scripts/create_user.sql:/docker-entrypoint-initdb.d/create_user.sql
+
+volumes:
+  mysql_data:

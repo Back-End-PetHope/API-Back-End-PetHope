@@ -1,22 +1,23 @@
 spring:
+  application:
+    name: pethope
   datasource:
-    url: jdbc:mysql://localhost:3306/db_adote_me_api
-    username: root
-    password: '@R0ot@8545'
+    url: ${DB_URL:jdbc:mysql://localhost:3306/pethope_db}
+    username: ${DB_USER:admin}
+    password: ${DB_PASSWORD:pethope@123}
+    driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     show-sql: true
+    database-platform: org.hibernate.dialect.MySQLDialect
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto:
   security:
     oauth2:
       client:
         registration:
           google:
-            client-id: 871356216202-asr2s8nvssnuejb1273nn6r58kptfrqe.apps.googleusercontent.com
-            client-secret: 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
-
-  application:
-    name: pethope
+            client-id: ${GOOGLE_OAUTH2_CLIENT_ID:test}
+            client-secret: ${GOOGLE_OAUTH2_CLIENT_SECRET:secret}
 
 server:
   servlet:
@@ -31,15 +32,3 @@ management:
     web:
       exposure:
         include: health
-
-
-#  spring.application.name=adote-me-api
-#  spring.datasource.username=root
-#  spring.datasource.password=@R0ot@8545
-#  spring.datasource.url=jdbc:mysql://localhost:3306/db_adote_me_api
-#  spring.jpa.show-sql=true
-#  spring.jpa.hibernate.ddl-auto=create-drop
-#  spring.security.oauth2.client.registration.google.client-id=871356216202-asr2s8nvssnuejb1273nn6r58kptfrqe.apps.googleusercontent.com
-#  spring.security.oauth2.client.registration.google.client-secret=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
-#  server.error.include-stacktrace=never
-#  server.error.include-message=never

@@ -1,6 +1,6 @@
 package com.github.znoque.pethope.config;
 
-public class SwaggerDocumentacionConfig {
+public class SwaggerDocumentationConfig {
 
     // Mensagens de erro
     public static final String RESPONSE_200 = "Login efetuado com sucesso";
@@ -15,11 +15,11 @@ public class SwaggerDocumentacionConfig {
     public static final String TAG_USER = "Endpoint para criar usuário";
     public static final String SUMARIO_USER = "Criar Usuário";
     public static final String DESCRICAO_USER = "Cria um novo usuário na aplicação.";
+    public static final String SUMARIO_LOGIN = "Login de usuário";
+    public static final String DESCRICAO_LOGIN = "Autentica um usuário utilizando credenciais.";
 
     // Auth
     public static final String TAG_AUTH = "Gerenciamento de autenticação de usuários";
-    public static final String SUMARIO_LOGIN = "Login de usuário";
-    public static final String DESCRICAO_LOGIN = "Autentica um usuário utilizando credenciais.";
 
     // Google Info
     public static final String SUMARIO_GOOGLE_INFO = "Informações do usuário autenticado com Google";
