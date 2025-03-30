@@ -24,7 +24,7 @@ public class SecurityConfig {
                                 .permitAll()
                                 .anyRequest().authenticated())
                 .oauth2Login(form ->
-                        form.defaultSuccessUrl("/auth/auth-google-info",true));
+                        form.defaultSuccessUrl("/oauth/auth-google-info",true));
         return http.build();
     }
 
