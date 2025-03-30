@@ -1,13 +1,28 @@
 spring:
   application:
     name: pethope
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/pethope_db}
+    username: ${DB_USER:admin}
+    password: ${DB_PASSWORD:pethope@123}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    show-sql: true
+    database-platform: org.hibernate.dialect.MySQLDialect
+    hibernate:
+      ddl-auto:
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_OAUTH2_CLIENT_ID:test}
+            client-secret: ${GOOGLE_OAUTH2_CLIENT_SECRET:secret}
 
 server:
   servlet:
     context-path: /api
 
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health
+error:
+  include-stacktrace: never
+  include-message: never
