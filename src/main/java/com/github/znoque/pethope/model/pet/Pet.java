@@ -16,6 +16,9 @@ public class Pet {
     @NotNull
     private String nome;
 
+    @Column(name = "descricao", nullable = false,length = 255)
+    private String descricao;
+
     @Enumerated(EnumType.STRING)
     @NotNull
     private Especie especie;
@@ -27,23 +30,12 @@ public class Pet {
     @Column(name = "idade")
     private int idade;
 
-    @Enumerated(EnumType.STRING)
-    private Porte porte;
-
-    @Column(name = "temperamento",nullable = false,length = 50)
-    private String temperamento;
-
-    @Column(name = "doenca",nullable = false)
-    private String doenca;
-
-    @Column(name = "necessidadeEspecifica",nullable = false)
-    private String necessidadeEspecifica;
-
     @Column(name = "ativo")
     private boolean ativo = true;
 
     @Column(name = "disponibilidade")
     private boolean disponibilidade = true;
+
 
     //private User userID;
 
@@ -88,37 +80,6 @@ public class Pet {
         this.idade = idade;
     }
 
-    public Porte getPorte() {
-        return porte;
-    }
-
-    public void setPorte(Porte porte) {
-        this.porte = porte;
-    }
-
-    public String getTemperamento() {
-        return temperamento;
-    }
-
-    public void setTemperamento(String temperamento) {
-        this.temperamento = temperamento;
-    }
-
-    public String getDoenca() {
-        return doenca;
-    }
-
-    public void setDoenca(String doenca) {
-        this.doenca = doenca;
-    }
-
-    public String getNecessidadeEspecifica() {
-        return necessidadeEspecifica;
-    }
-
-    public void setNecessidadeEspecifica(String necessidadeEspecifica) {
-        this.necessidadeEspecifica = necessidadeEspecifica;
-    }
 
     public boolean isAtivo() {
         return ativo;
@@ -134,5 +95,13 @@ public class Pet {
 
     public void setDisponibilidade(boolean disponibilidade) {
         this.disponibilidade = disponibilidade;
+    }
+
+    public String getDescricao() {
+        return descricao;
+    }
+
+    public void setDescricao(String descricao) {
+        this.descricao = descricao;
     }
 }
