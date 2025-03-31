@@ -44,4 +44,12 @@ public class PetController {
         return ResponseEntity.ok(pet);
     }
 
+    @PatchMapping("/v1/patch/{id}")
+    public ResponseEntity<Pet> patchPet(@PathVariable int id) {
+        Pet petInativado = petService.inativarPet(id);
+
+        return ResponseEntity.ok(petInativado);
+    }
+
+
 }
