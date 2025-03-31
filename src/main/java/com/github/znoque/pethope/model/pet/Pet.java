@@ -9,31 +9,38 @@ public class Pet {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id")
+    @Column(name = "pet_id")
     private int id;
 
-    @Column(name = "name",nullable = false,length = 50)
+    @Column(name = "pet_nome", nullable = false, length = 50)
     @NotNull
     private String nome;
 
-    @Column(name = "descricao", nullable = false,length = 255)
+    @Column(name = "pet_descricao", nullable = false, length = 255)
     private String descricao;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "pet_especie")
     @NotNull
     private Especie especie;
 
-    @Column(name="raca",nullable = false,length = 50)
+    @Enumerated(EnumType.STRING)
+    @Column(name="pet_raca", nullable = false)
     @NotNull
-    private String raca;
+    private Raca raca;
 
-    @Column(name = "idade")
+    @Column(name = "pet_idade")
     private int idade;
 
-    @Column(name = "ativo")
+    @Enumerated(EnumType.STRING)
+    @Column(name = "pet_sexo", nullable = false)
+    @NotNull
+    private Sexo sexo;
+
+    @Column(name = "pet_ativo")
     private boolean ativo = true;
 
-    @Column(name = "disponibilidade")
+    @Column(name = "pet_status")
     private boolean disponibilidade = true;
 
 
@@ -64,11 +71,11 @@ public class Pet {
         this.especie = especie;
     }
 
-    public String getRaca() {
+    public Raca getRaca() {
         return raca;
     }
 
-    public void setRaca(String raca) {
+    public void setRaca(Raca raca) {
         this.raca = raca;
     }
 
@@ -79,7 +86,6 @@ public class Pet {
     public void setIdade(int idade) {
         this.idade = idade;
     }
-
 
     public boolean isAtivo() {
         return ativo;
@@ -103,5 +109,13 @@ public class Pet {
 
     public void setDescricao(String descricao) {
         this.descricao = descricao;
+    }
+
+    public Sexo getSexo() {
+        return sexo;
+    }
+
+    public void setSexo(Sexo sexo) {
+        this.sexo = sexo;
     }
 }
