@@ -22,9 +22,11 @@ public class PetService {
         Pet pet = new Pet();
 
         pet.setNome(petDto.nome());
-        pet.setEspecie(petDto.especie());
-        pet.setIdade(petDto.idade());
         pet.setDescricao(petDto.descricao());
+        pet.setEspecie(petDto.especie());
+        pet.setRaca(petDto.raca());
+        pet.setIdade(petDto.idade());
+        pet.setSexo(petDto.sexo());
         pet.setAtivo(petDto.ativo());
         pet.setDisponibilidade(pet.isDisponibilidade());
 
@@ -43,12 +45,14 @@ public class PetService {
     public Pet updatePet (PetDto petDto, int id) {
         Pet pet = petRepository.findById(id).orElseThrow(() -> new RuntimeException("Pet não encontrado"));
 
-            pet.setNome(petDto.nome());
-            pet.setEspecie(petDto.especie());
-            pet.setIdade(petDto.idade());
-            pet.setDescricao(petDto.descricao());
-            pet.setAtivo(petDto.ativo());
-            pet.setDisponibilidade(pet.isDisponibilidade());
+        pet.setNome(petDto.nome());
+        pet.setDescricao(petDto.descricao());
+        pet.setEspecie(petDto.especie());
+        pet.setRaca(petDto.raca());
+        pet.setIdade(petDto.idade());
+        pet.setSexo(petDto.sexo());
+        pet.setAtivo(petDto.ativo());
+        pet.setDisponibilidade(pet.isDisponibilidade());
 
             return petRepository.save(pet);
 
