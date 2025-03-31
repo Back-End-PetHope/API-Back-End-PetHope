@@ -24,10 +24,7 @@ public class PetService {
         pet.setNome(petDto.nome());
         pet.setEspecie(petDto.especie());
         pet.setIdade(petDto.idade());
-        pet.setPorte(petDto.porte());
-        pet.setTemperamento(petDto.temperamento());
-        pet.setDoenca(petDto.doenca());
-        pet.setNecessidadeEspecifica(petDto.necessidadeEspecifica());
+        pet.setDescricao(petDto.descricao());
         pet.setAtivo(petDto.ativo());
         pet.setDisponibilidade(pet.isDisponibilidade());
 
@@ -49,10 +46,7 @@ public class PetService {
             pet.setNome(petDto.nome());
             pet.setEspecie(petDto.especie());
             pet.setIdade(petDto.idade());
-            pet.setPorte(petDto.porte());
-            pet.setTemperamento(petDto.temperamento());
-            pet.setDoenca(petDto.doenca());
-            pet.setNecessidadeEspecifica(petDto.necessidadeEspecifica());
+            pet.setDescricao(petDto.descricao());
             pet.setAtivo(petDto.ativo());
             pet.setDisponibilidade(pet.isDisponibilidade());
 
@@ -81,6 +75,14 @@ public class PetService {
             throw new RuntimeException("Idade minima não pode ser maior que idade máxima");
         }
         return petRepository.findByIdadeBetween(idadeMin, idadeMax);
+    }
+
+    public Pet inativarPet(int id) {
+        Pet petInativado = petRepository.findById(id).orElseThrow(() -> new RuntimeException("Pet não encontrado"));
+
+        petInativado.setAtivo(false);
+
+        return petRepository.save(petInativado);
     }
 
 
