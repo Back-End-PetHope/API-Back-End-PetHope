@@ -35,7 +35,6 @@ public record UserRequestDto(
             @Size(min = 6, max = 255, message = "A senha deve ter no mínimo 6 e no máximo 255 caracteres")
             String password,
 
-
             @Enumerated(EnumType.STRING)
             UsuarioTipo tipo)
             {

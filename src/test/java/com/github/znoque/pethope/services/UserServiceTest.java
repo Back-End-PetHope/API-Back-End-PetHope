@@ -1,6 +1,8 @@
 package com.github.znoque.pethope.services;
 
+import com.github.znoque.pethope.dto.user.AuthResquestDto;
 import com.github.znoque.pethope.dto.user.UserRequestDto;
+import com.github.znoque.pethope.enums.UsuarioTipo;
 import com.github.znoque.pethope.model.User;
 import com.github.znoque.pethope.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,46 +30,67 @@ class UserServiceTest {
     @InjectMocks
     private UserService userService;
 
+    private AuthResquestDto authResquestDto;
     private UserRequestDto userRequestDto;
     private User user;
 
-//    @BeforeEach
-//    void setUp() {
-//        MockitoAnnotations.openMocks(this);
-//        userRequestDto = new UserRequestDto("test@example.com", "password123");
-//        user = new User(userRequestDto.email(), "encodedPassword");
-//    }
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+        authResquestDto = new AuthResquestDto("test@example.com", "password123");
+        userRequestDto = new UserRequestDto(
+                "12345678901", // CPF fictício formatado
+                "João Silva",
+                "11999999999",
+                "São Paulo",
+                "Rua Exemplo, 123",
+                "test@example.com",
+                "password123",
+                UsuarioTipo.USUARIO
+        );
 
-//    @Test
-//    @DisplayName("Deve lançar exceção quando usuário não for encontrado")
-//    void shouldThrowExceptionWhenUserNotFound() {
-//        when(userRepository.findByEmail(userRequestDto.email())).thenReturn(Optional.empty());
-//
-//        RuntimeException exception = assertThrows(RuntimeException.class, () -> userService.authenticate(userRequestDto));
-//        assertEquals("Usuário não encontrado", exception.getMessage());
-//    }
-//
-//    @Test
-//    @DisplayName("Deve lançar exceção quando a senha for inválida")
-//    void shouldThrowExceptionWhenPasswordIsInvalid() {
-//        when(userRepository.findByEmail(userRequestDto.email())).thenReturn(Optional.ofNullable(user));
-//        when(passwordEncoder.matches(userRequestDto.password(), user.getSenha())).thenReturn(false);
-//
-//        RuntimeException exception = assertThrows(RuntimeException.class, () -> userService.authenticate(userRequestDto));
-//        assertEquals("Senha inválida", exception.getMessage());
-//    }
+        user = new User(
+                userRequestDto.cpf(),
+                userRequestDto.responsavelNome(),
+                userRequestDto.telefone(),
+                userRequestDto.cidade(),
+                userRequestDto.endereco(),
+                userRequestDto.email(),
+                "encodedPassword", // Aqui assumo que a senha será codificada antes de ser salva
+                userRequestDto.tipo()
+        );
+    }
 
-//    @Test
-//    @DisplayName("Deve autenticar o usuário com sucesso")
-//    void shouldAuthenticateUserSuccessfully() {
-//        when(userRepository.findByEmail(userRequestDto.email())).thenReturn(Optional.ofNullable(user));
-//        when(passwordEncoder.matches(userRequestDto.password(), user.getSenha())).thenReturn(true);
-//
-//        UserRequestDto authenticatedUser = userService.authenticate(userRequestDto);
-//
-//        assertNotNull(authenticatedUser);
-//        assertEquals(userRequestDto.email(), authenticatedUser.email());
-//    }
+    @Test
+    @DisplayName("Deve lançar exceção quando usuário não for encontrado")
+    void shouldThrowExceptionWhenUserNotFound() {
+        when(userRepository.findByEmail(userRequestDto.email())).thenReturn(Optional.empty());
+
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> userService.authenticate(authResquestDto));
+        assertEquals("Usuário não encontrado", exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("Deve lançar exceção quando a senha for inválida")
+    void shouldThrowExceptionWhenPasswordIsInvalid() {
+        when(userRepository.findByEmail(userRequestDto.email())).thenReturn(Optional.ofNullable(user));
+        when(passwordEncoder.matches(userRequestDto.password(), user.getSenha())).thenReturn(false);
+
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> userService.authenticate(authResquestDto));
+        assertEquals("Senha inválida", exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("Deve autenticar o usuário com sucesso")
+    void shouldAuthenticateUserSuccessfully() {
+        when(userRepository.findByEmail(userRequestDto.email())).thenReturn(Optional.ofNullable(user));
+        when(passwordEncoder.matches(userRequestDto.password(), user.getSenha())).thenReturn(true);
+
+        AuthResquestDto authenticatedUser = userService.authenticate(authResquestDto);
+
+        assertNotNull(authenticatedUser);
+        assertEquals(userRequestDto.email(), authenticatedUser.email());
+    }
 
     @Test
     @DisplayName("Deve lançar exceção quando o email já estiver cadastrado")

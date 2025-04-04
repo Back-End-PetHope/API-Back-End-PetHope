@@ -3,6 +3,7 @@ package com.github.znoque.pethope.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.znoque.pethope.dto.user.AuthResquestDto;
 import com.github.znoque.pethope.dto.user.UserRequestDto;
+import com.github.znoque.pethope.enums.UsuarioTipo;
 import com.github.znoque.pethope.model.User;
 import com.github.znoque.pethope.security.TestSecurityConfig;
 import com.github.znoque.pethope.services.UserService;
@@ -43,23 +44,47 @@ class UserControllerTest {
     private AuthResquestDto authResquestDto;
     private User user;
 
-//    @BeforeEach
-//    void setUp() {
-//        MockitoAnnotations.openMocks(this);
-//        userRequestDto = new UserRequestDto("test@example.com", "password123");
-//        user = new User(userRequestDto.email(), "encodedPassword123");
-//    }
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+        authResquestDto = new AuthResquestDto("test@example.com", "password123");
+        userRequestDto = new UserRequestDto(
+                "12345678901", // CPF fictício formatado
+                "João Silva",
+                "11999999999",
+                "São Paulo",
+                "Rua Exemplo, 123",
+                "test@example.com",
+                "password123",
+                UsuarioTipo.USUARIO
+        );
+
+        user = new User(
+                userRequestDto.cpf(),
+                userRequestDto.responsavelNome(),
+                userRequestDto.telefone(),
+                userRequestDto.cidade(),
+                userRequestDto.endereco(),
+                userRequestDto.email(),
+                "encodedPassword", // Aqui assumo que a senha será codificada antes de ser salva
+                userRequestDto.tipo()
+        );
+    }
 
     @Test
     @DisplayName("Deve criar o usuário com sucesso e retornar 201 Created")
     void shouldCreateUserSucessfullyAndReturn201Created() throws Exception {
         when(userService.saveUser(userRequestDto)).thenReturn(user);
-
+        System.out.println(objectMapper.writeValueAsString(userRequestDto));
         mockMvc.perform(MockMvcRequestBuilders.post("/users/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(userRequestDto)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.email").value("test@example.com"));
+                .andExpect(jsonPath("$.message").value("Created"))
+                .andExpect(jsonPath("$.statusCode").value(201))
+                .andExpect(jsonPath("$.data.nome").value("João Silva"))
+                .andExpect(jsonPath("$.data.email").value("test@example.com"))
+                .andExpect(jsonPath("$.data.tipo").value("USUARIO"));
     }
 
 
