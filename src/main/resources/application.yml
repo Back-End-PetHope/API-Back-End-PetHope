@@ -7,10 +7,12 @@ spring:
     password: ${DB_PASSWORD:pethope@123}
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
-    show-sql: true
+    show-sql: false
     database-platform: org.hibernate.dialect.MySQLDialect
     hibernate:
-      ddl-auto:
+      ddl-auto: create-drop
+      format_sql: true  # Formata as queries para melhor legibilidade
+      use_sql_comments: true  # Adiciona comentários explicativos no SQL gerado
   security:
     oauth2:
       client:
@@ -26,3 +28,11 @@ server:
 error:
   include-stacktrace: never
   include-message: never
+
+logging:
+  level:
+    org.hibernate.SQL: DEBUG  # Exibe as consultas SQL
+    org.hibernate.type.descriptor.sql: TRACE  # Mostra os valores dos parâmetros nas queries
+    org.springframework.web: DEBUG  # Logs detalhados das requisições web
+    org.springframework.security: DEBUG  # Logs detalhados do Spring Security
+    org.hibernate.orm.jdbc.bind: TRACE

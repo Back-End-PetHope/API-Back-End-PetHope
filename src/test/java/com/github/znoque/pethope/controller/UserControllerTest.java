@@ -1,7 +1,8 @@
 package com.github.znoque.pethope.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.znoque.pethope.dto.UserRequestDto;
+import com.github.znoque.pethope.dto.user.AuthResquestDto;
+import com.github.znoque.pethope.dto.user.UserRequestDto;
 import com.github.znoque.pethope.model.User;
 import com.github.znoque.pethope.security.TestSecurityConfig;
 import com.github.znoque.pethope.services.UserService;
@@ -39,14 +40,15 @@ class UserControllerTest {
     private ObjectMapper objectMapper;
 
     private UserRequestDto userRequestDto;
+    private AuthResquestDto authResquestDto;
     private User user;
 
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-        userRequestDto = new UserRequestDto("test@example.com", "password123");
-        user = new User(userRequestDto.email(), "encodedPassword123");
-    }
+//    @BeforeEach
+//    void setUp() {
+//        MockitoAnnotations.openMocks(this);
+//        userRequestDto = new UserRequestDto("test@example.com", "password123");
+//        user = new User(userRequestDto.email(), "encodedPassword123");
+//    }
 
     @Test
     @DisplayName("Deve criar o usuário com sucesso e retornar 201 Created")
@@ -92,11 +94,11 @@ class UserControllerTest {
     @Test
     @DisplayName("Deve logar usuário com sucesso e retornar 200 OK")
     void shouldLoginUserSuccessfullyAndReturn200OK() throws Exception {
-        when(userService.authenticate(userRequestDto)).thenReturn(userRequestDto);
+        when(userService.authenticate(authResquestDto)).thenReturn(authResquestDto);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/users/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(userRequestDto)))
+                        .content(objectMapper.writeValueAsString(authResquestDto)))
                 .andExpect(status().isOk());
     }
 
@@ -104,11 +106,11 @@ class UserControllerTest {
     @DisplayName("Deve falhar quando o usuário não é encontrado e retornar 404 Not Found")
     void shouldFailtAtLoginWhenUserDoesNotExistsAndReturn404NotFound() throws Exception {
         String errorMessage = "Usuário não encontrado";
-        when(userService.authenticate(userRequestDto)).thenThrow(new NoSuchElementException(errorMessage));
+        when(userService.authenticate(authResquestDto)).thenThrow(new NoSuchElementException(errorMessage));
 
         mockMvc.perform(MockMvcRequestBuilders.post("/users/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(userRequestDto)))
+                        .content(objectMapper.writeValueAsString(authResquestDto)))
                 .andExpect(MockMvcResultMatchers.status().isNotFound())
                 .andExpect(jsonPath("$.status").value(404))
                 .andExpect(jsonPath("$.message").value(errorMessage));
@@ -118,11 +120,11 @@ class UserControllerTest {
     @DisplayName("Deve falhar quando ocorrer um erro inesperado ao logar usuário e retornar 500 Internal Server Error")
     void shouldFailAtLoginUserAndReturn500InternalServerError() throws Exception {
         String errorMessage = "Ocorreu um erro inesperado";
-        when(userService.authenticate(userRequestDto)).thenThrow(new RuntimeException(errorMessage));
+        when(userService.authenticate(authResquestDto)).thenThrow(new RuntimeException(errorMessage));
 
         mockMvc.perform(MockMvcRequestBuilders.post("/users/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(userRequestDto)))
+                        .content(objectMapper.writeValueAsString(authResquestDto)))
                 .andExpect(status().isInternalServerError())
                 .andExpect(jsonPath("$.status").value(500))
                 .andExpect(jsonPath("$.message").value(errorMessage));

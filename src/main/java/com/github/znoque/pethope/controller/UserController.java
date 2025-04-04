@@ -2,8 +2,13 @@ package com.github.znoque.pethope.controller;
 
 
 import com.github.znoque.pethope.config.SwaggerDocumentationConfig;
-import com.github.znoque.pethope.dto.UserRequestDto;
-import com.github.znoque.pethope.dto.UserResponseDto;
+import com.github.znoque.pethope.dto.clinica.ClinicaOrOngRequestDto;
+import com.github.znoque.pethope.dto.clinica.ClinicaOrOngResponseDto;
+import com.github.znoque.pethope.dto.GlobalResponseDto;
+import com.github.znoque.pethope.dto.user.AuthResponseDto;
+import com.github.znoque.pethope.dto.user.AuthResquestDto;
+import com.github.znoque.pethope.dto.user.UserRequestDto;
+import com.github.znoque.pethope.dto.user.UserResponseDto;
 import com.github.znoque.pethope.model.User;
 import com.github.znoque.pethope.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -44,8 +49,22 @@ public class UserController {
     })
     public ResponseEntity<?> createUser(@RequestBody @Valid UserRequestDto data) {
         User user = userService.saveUser(data);
-        UserResponseDto userResponseDto = new UserResponseDto(user.getEmail());
-        return ResponseEntity.status(HttpStatus.CREATED).body(userResponseDto);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(new GlobalResponseDto<>(HttpStatus.CREATED.getReasonPhrase(),
+                        HttpStatus.CREATED.value(),
+                        new UserResponseDto(user.getResponsavelNome(),user.getEmail(),user.getTipo())));
+    }
+
+    //Documentar ainda
+    @PostMapping("/create/ClinicaOrOng")
+    public ResponseEntity<?> createClinicaOrOng(@RequestBody @Valid ClinicaOrOngRequestDto data) {
+        User user = userService.saveClinicaOrOng(data);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(new GlobalResponseDto<>(HttpStatus.CREATED.getReasonPhrase(),
+                        HttpStatus.CREATED.value(),
+                        new ClinicaOrOngResponseDto(user.getRazaoSocial(),user.getEmail(),user.getTipo())));
     }
 
     @PostMapping("/login")
@@ -55,9 +74,14 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = SwaggerDocumentationConfig.RESPONSE_404),
             @ApiResponse(responseCode = "500", description = SwaggerDocumentationConfig.RESPONSE_500)
     })
-    public ResponseEntity<?> loginUser(@RequestBody @Valid UserRequestDto data) {
-        userService.authenticate(data);
-        return ResponseEntity.status(HttpStatus.OK).build();
+    public ResponseEntity<?> loginUser(@RequestBody @Valid AuthResquestDto data) {
+        AuthResquestDto user = userService.authenticate(data);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(new GlobalResponseDto<>(HttpStatus.OK.getReasonPhrase(),
+                        HttpStatus.OK.value(),
+                        new AuthResponseDto(user.password())));
     }
+
 
 }
