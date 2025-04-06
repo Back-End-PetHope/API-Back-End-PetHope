@@ -11,26 +11,24 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 public class SecurityConfig {
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth ->
-                        auth.requestMatchers(
-                                        "/swagger-ui/**",
-                                        "/v3/api-docs/**",
-                                        "/users/login",
-                                        "/users/create",
-                                "/users/create/ClinicaOrOng"
-                                )
-                                .permitAll()
-                                .anyRequest().authenticated())
-                .oauth2Login(form ->
-                        form.defaultSuccessUrl("/oauth/auth-google-info",true));
-        return http.build();
-    }
+  @Bean
+  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    http.csrf(AbstractHttpConfigurer::disable)
+        .authorizeHttpRequests(auth -> auth.requestMatchers(
+            "/swagger-ui/**",
+            "/v3/api-docs/**",
+            "/users/login",
+            "/users/create",
+            "/users/{id}",
+            "/users/create/ClinicaOrOng")
+            .permitAll()
+            .anyRequest().authenticated())
+        .oauth2Login(form -> form.defaultSuccessUrl("/oauth/auth-google-info", true));
+    return http.build();
+  }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+  @Bean
+  public PasswordEncoder passwordEncoder() {
+    return new BCryptPasswordEncoder();
+  }
 }

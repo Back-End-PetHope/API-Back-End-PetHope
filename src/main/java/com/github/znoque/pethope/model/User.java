@@ -13,221 +13,212 @@ import java.util.UUID;
 @Table(name = "usuario")
 public class User {
 
-    @Id
-    @Column(name = "usuario_id", updatable = false, nullable = false)
-    private String id;
+  @Id
+  @Column(name = "usuario_id", updatable = false, nullable = false)
+  private String id;
 
-    @Email
-    @NotBlank
-    @NotNull
-    @Size(min = 11, max = 155)
-    @Column(name = "usuario_email", length = 155, nullable = false, unique = true)
-    private String email;
+  @Email
+  @NotBlank
+  @NotNull
+  @Size(min = 11, max = 155)
+  @Column(name = "usuario_email", length = 155, nullable = false, unique = true)
+  private String email;
 
-    @NotBlank
-    @NotNull
-    @Size(min = 6, max = 255)
-    @Column(name = "usuario_senha", nullable = false)
-    private String senha;
+  @NotBlank
+  @NotNull
+  @Size(min = 6, max = 255)
+  @Column(name = "usuario_senha", nullable = false)
+  private String senha;
 
+  @NotNull
+  @Column(name = "usuario_tipo", nullable = false)
+  @Enumerated(EnumType.STRING)
+  private UsuarioTipo tipo;
 
-    @NotNull
-    @Column(name = "usuario_tipo", nullable = false)
-    @Enumerated(EnumType.STRING)
-    private UsuarioTipo tipo;
+  @NotBlank
+  @NotNull
+  @Size(max = 14)
+  @Column(name = "usuario_cpf_cnpj", nullable = false, unique = true)
+  private String cpfCnpj;
 
-    @NotBlank
-    @NotNull
-    @Size(max=14)
-    @Column(name = "usuario_cpf_cnpj", nullable = false, unique = true)
-    private String cpfCnpj;
+  @Column(name = "usuario_razao_social", unique = true)
+  private String razaoSocial;
 
-//    @NotBlank
-//    @NotNull
-//    @Column(name = "usuario_nome", nullable = false)
-//    private String nome;
+  @NotBlank
+  @NotNull
+  @Column(name = "usuario_responsavel_nome", nullable = false)
+  private String responsavelNome;
 
-//    @Column(name = "usuario_nome_fantasia")
-//    private String nomeFantasia;
+  @Size(max = 14)
+  @Column(name = "usuario_telefone", nullable = false)
+  private String telefone;
 
-    @Column(name = "usuario_razao_social", unique = true)
-    private String razaoSocial;
+  @Column(name = "usuario_logradouro")
+  private String logradouro;
 
-    @NotBlank
-    @NotNull
-    @Column(name = "usuario_responsavel_nome",nullable = false)
-    private String responsavelNome;
+  @Size(max = 150)
+  @Column(name = "usuario_cidade", nullable = false)
+  private String cidade;
 
-//    @Size(max=11)
-//    @Column(name = "usuario_responsavel_cpf")
-//    private String responsavelCpf;
+  @Column(name = "usuario_is_prestador_servico", nullable = false)
+  private Boolean isPrestadorServico;
 
-    //@NotBlank
-    //@NotNull
-    @Size(max=14)
-    @Column(name = "usuario_telefone", nullable = false)
-    private String telefone;
+  @Column(name = "usuario_site")
+  private String site;
 
-    @Column(name = "usuario_logradouro")
-    private String logradouro;
+  @Column(name = "usuario_url_instagram")
+  private String urlInstagram;
 
-//    @NotBlank
-//    @NotNull
-//    @Size(max=10)
-//    @Column(name = "usuario_numero", nullable = false)
-//    private String numero;
+  @Column(name = "usuario_url_facebook")
+  private String urlFacebook;
 
-    //@NotBlank
-    //@NotNull
-    @Size(max=150)
-    @Column(name = "usuario_cidade", nullable = false)
-    private String cidade;
+  // Construtores
+  public User(String cpfCnpj, String responsavelNome, String telefone,
+      String cidade, String logradouro,
+      String email, String senha, UsuarioTipo tipo) {
+    this.id = String.valueOf(UUID.randomUUID());
+    this.cpfCnpj = cpfCnpj;
+    this.responsavelNome = responsavelNome;
+    this.telefone = telefone;
+    this.cidade = cidade;
+    this.logradouro = logradouro;
+    this.email = email;
+    this.senha = senha;
+    this.tipo = tipo;
+    this.isPrestadorServico = this.isPrestadorServico != null ? isPrestadorServico : false;
+  }
 
-//    @NotBlank
-//    @NotNull
-//    @Size(max=2)
-//    @Column(name = "usuario_estado", nullable = false, length = 2)
-//    private String estado;
+  public User(String cpfCnpj, String responsavelNome,
+      String telefone, String cidade, String logradouro, String razaoSocial,
+      String email, String senha, String site, String urlInstagram, String urlFacebook,
+      UsuarioTipo tipo, boolean isPrestadorServico) {
+    this.id = String.valueOf(UUID.randomUUID());
+    this.cpfCnpj = cpfCnpj;
+    this.responsavelNome = responsavelNome;
+    this.telefone = telefone;
+    this.cidade = cidade;
+    this.logradouro = logradouro;
+    this.razaoSocial = razaoSocial;
+    this.email = email;
+    this.senha = senha;
+    this.site = site;
+    this.urlInstagram = urlInstagram;
+    this.urlFacebook = urlFacebook;
+    this.tipo = tipo;
+    this.isPrestadorServico = isPrestadorServico;
+  }
 
-//    @NotBlank
-//    @NotNull
-//    @Size(max=9)
-//    @Column(name = "usuario_cep", nullable = false)
-//    private String cep;
+  @Deprecated
+  public User() {
+  }
 
-    @Column(name = "usuario_is_prestador_servico",nullable = false)
-    private Boolean isPrestadorServico;
+  // Getters
+  public String getEmail() {
+    return email;
+  }
 
-    @Column(name = "usuario_site")
-    private String site;
+  public String getSenha() {
+    return senha;
+  }
 
-    @Column(name = "usuario_url_instagram")
-    private String urlInstagram;
+  public String getId() {
+    return id;
+  }
 
-    @Column(name = "usuario_url_facebook")
-    private String urlFacebook;
+  public UsuarioTipo getTipo() {
+    return tipo;
+  }
 
+  public String getCpfCnpj() {
+    return cpfCnpj;
+  }
 
+  public String getRazaoSocial() {
+    return razaoSocial;
+  }
 
-    public User(String cpfCnpj,String responsavelNome,String telefone,
-                String cidade, String logradouro,
-                String email, String senha, UsuarioTipo tipo) {
-        this.id = String.valueOf(UUID.randomUUID());
-        this.cpfCnpj = cpfCnpj;
-        this.responsavelNome = responsavelNome;
-        this.telefone = telefone;
-        this.cidade = cidade;
-        this.logradouro = logradouro;
-        this.email = email;
-        this.senha = senha;
-        this.tipo = tipo;
-        this.isPrestadorServico = this.isPrestadorServico != null ? isPrestadorServico : false;
-    }
+  public String getResponsavelNome() {
+    return responsavelNome;
+  }
 
-    public User(String cpfCnpj,String responsavelNome,
-                String telefone, String cidade, String logradouro, String razaoSocial,
-                String email,String senha, String site, String urlInstagram, String urlFacebook,
-                UsuarioTipo tipo, boolean isPrestadorServico) {
+  public String getTelefone() {
+    return telefone;
+  }
 
-        this.id = String.valueOf(UUID.randomUUID());
-        this.cpfCnpj = cpfCnpj;
-        this.responsavelNome = responsavelNome;
-        this.telefone = telefone;
-        this.cidade = cidade;
-        this.logradouro = logradouro;
-        this.razaoSocial = razaoSocial;
-        this.email = email;
-        this.senha = senha;
-        this.site = site;
-        this.urlInstagram = urlInstagram;
-        this.urlFacebook = urlFacebook;
-        this.tipo = tipo;
-        this.isPrestadorServico = this.isPrestadorServico != null ? isPrestadorServico : false;
-    }
+  public String getLogradouro() {
+    return logradouro;
+  }
 
-    @Deprecated
-    public User(){
+  public String getCidade() {
+    return cidade;
+  }
 
-    }
+  public Boolean getPrestadorServico() {
+    return isPrestadorServico;
+  }
 
-    public String getEmail() {
-        return email;
-    }
+  public String getSite() {
+    return site;
+  }
 
-    public String getSenha() {
-        return senha;
-    }
+  public String getUrlInstagram() {
+    return urlInstagram;
+  }
 
-    public String getId() {
-        return id;
-    }
+  public String getUrlFacebook() {
+    return urlFacebook;
+  }
 
-    public UsuarioTipo getTipo() {
-        return tipo;
-    }
+  // Setters necessários para o updateUser
+  public void setEmail(String email) {
+    this.email = email;
+  }
 
-    public String getCpfCnpj() {
-        return cpfCnpj;
-    }
+  public void setSenha(String senha) {
+    this.senha = senha;
+  }
 
-//    public String getNome() {
-//        return nome;
-//    }
+  public void setTipo(UsuarioTipo tipo) {
+    this.tipo = tipo;
+  }
 
-//    public String getNomeFantasia() {
-//        return nomeFantasia;
-//    }
+  public void setCpfCnpj(String cpfCnpj) {
+    this.cpfCnpj = cpfCnpj;
+  }
 
-    public String getRazaoSocial() {
-        return razaoSocial;
-    }
+  public void setRazaoSocial(String razaoSocial) {
+    this.razaoSocial = razaoSocial;
+  }
 
-    public String getResponsavelNome() {
-        return responsavelNome;
-    }
+  public void setResponsavelNome(String responsavelNome) {
+    this.responsavelNome = responsavelNome;
+  }
 
-//    public String getResponsavelCpf() {
-//        return responsavelCpf;
-//    }
+  public void setTelefone(String telefone) {
+    this.telefone = telefone;
+  }
 
-    public String getTelefone() {
-        return telefone;
-    }
+  public void setLogradouro(String logradouro) {
+    this.logradouro = logradouro;
+  }
 
-    public String getLogradouro() {
-        return logradouro;
-    }
+  public void setCidade(String cidade) {
+    this.cidade = cidade;
+  }
 
-//    public String getNumero() {
-//        return numero;
-//    }
+  public void setPrestadorServico(Boolean isPrestadorServico) {
+    this.isPrestadorServico = isPrestadorServico;
+  }
 
-    public String getCidade() {
-        return cidade;
-    }
+  public void setSite(String site) {
+    this.site = site;
+  }
 
-//    public String getEstado() {
-//        return estado;
-//    }
-//
-//    public String getCep() {
-//        return cep;
-//    }
+  public void setUrlInstagram(String urlInstagram) {
+    this.urlInstagram = urlInstagram;
+  }
 
-    public Boolean getPrestadorServico() {
-        return isPrestadorServico;
-    }
-
-    public String getSite() {
-        return site;
-    }
-
-    public String getUrlInstagram() {
-        return urlInstagram;
-    }
-
-    public String getUrlFacebook() {
-        return urlFacebook;
-    }
-
+  public void setUrlFacebook(String urlFacebook) {
+    this.urlFacebook = urlFacebook;
+  }
 }

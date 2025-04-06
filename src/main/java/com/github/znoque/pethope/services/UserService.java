@@ -15,67 +15,98 @@ import java.util.NoSuchElementException;
 @Service
 public class UserService {
 
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
+  private final UserRepository userRepository;
+  private final PasswordEncoder passwordEncoder;
 
-    UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
+  UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    this.userRepository = userRepository;
+    this.passwordEncoder = passwordEncoder;
+  }
+
+  public AuthResquestDto authenticate(AuthResquestDto data) {
+    User user = userRepository.findByEmail(data.email())
+        .orElseThrow(() -> new NoSuchElementException("Usuário não encontrado"));
+
+    if (!passwordEncoder.matches(data.password(), user.getSenha())) {
+      throw new BadCredentialsException("Senha inválida");
     }
 
-    public AuthResquestDto authenticate(AuthResquestDto data) {
-        User user = userRepository.findByEmail(data.email())
-                .orElseThrow(() -> new NoSuchElementException("Usuário não encontrado"));
+    return new AuthResquestDto(user.getEmail(), user.getSenha());
+  }
 
-        if (!passwordEncoder.matches(data.password(), user.getSenha())) {
-            throw new BadCredentialsException("Senha inválida");
-        }
+  public User saveUser(UserRequestDto data) {
+    userRepository.findByEmail(data.email())
+        .ifPresent(existingUser -> {
+          throw new DataIntegrityViolationException("Usuário já criado com o e-mail: " + data.email());
+        });
+    User user = new User(
+        data.cpf(),
+        data.responsavelNome(),
+        data.telefone(),
+        data.cidade(),
+        data.endereco(),
+        data.email(),
+        passwordEncoder.encode(data.password()),
+        data.tipo());
+    return userRepository.save(user);
+  }
 
-        return new AuthResquestDto(user.getEmail(), user.getSenha());
-    }
+  public User saveClinicaOrOng(ClinicaOrOngRequestDto data) {
+    userRepository.findByEmail(data.email())
+        .ifPresent(existingUser -> {
+          throw new DataIntegrityViolationException("Ong já criado com o e-mail: " + data.email());
+        });
+    User user = new User(
+        data.cnpj(),
+        data.responsavelNome(),
+        data.telefone(),
+        data.cidade(),
+        data.endereco(),
+        data.razaoSocial(),
+        data.email(),
+        passwordEncoder.encode(data.senha()),
+        data.site(),
+        data.urlFacebook(),
+        data.urlInstagram(),
+        data.tipo(),
+        data.isPrestadorServico());
+    return userRepository.save(user);
+  }
 
+  public User updateUser(String id, UserRequestDto data) {
+    User user = userRepository.findById(id)
+        .orElseThrow(() -> new NoSuchElementException("Usuário não encontrado"));
 
-    public User saveUser(UserRequestDto data) {
-        userRepository.findByEmail(data.email())
-                .ifPresent(existingUser -> {
-                    throw new DataIntegrityViolationException("Usuário já criado com o e-mail: " + data.email());
-                });
-        System.out.println(data.tipo());
-        User user = new User(
-                data.cpf(),
-                data.responsavelNome(),
-                data.telefone(),
-                data.cidade(),
-                data.endereco(),
-                data.email(),
-                passwordEncoder.encode(data.password()),
-                data.tipo()
-        );
-        return userRepository.save(user);
-    }
+    userRepository.findByEmail(data.email())
+        .filter(existingUser -> !existingUser.getId().equals(id))
+        .ifPresent(existingUser -> {
+          throw new DataIntegrityViolationException("E-mail já está em uso por outro usuário: " + data.email());
+        });
 
+    if (data.cpf() != null)
+      user.setCpfCnpj(data.cpf());
+    if (data.responsavelNome() != null)
+      user.setResponsavelNome(data.responsavelNome());
+    if (data.telefone() != null)
+      user.setTelefone(data.telefone());
+    if (data.cidade() != null)
+      user.setCidade(data.cidade());
+    if (data.endereco() != null)
+      user.setLogradouro(data.endereco());
+    if (data.email() != null)
+      user.setEmail(data.email());
+    if (data.password() != null)
+      user.setSenha(passwordEncoder.encode(data.password()));
+    if (data.tipo() != null)
+      user.setTipo(data.tipo());
 
-    public User saveClinicaOrOng(ClinicaOrOngRequestDto data) {
-        userRepository.findByEmail(data.email())
-                .ifPresent(existingUser -> {
-                    throw new DataIntegrityViolationException("Ong já criado com o e-mail: " + data.email());
-                });
-        User user = new User(
-                data.cnpj(),
-                data.responsavelNome(),
-                data.telefone(),
-                data.cidade(),
-                data.endereco(),
-                data.razaoSocial(),
-                data.email(),
-                passwordEncoder.encode(data.senha()),
-                data.site(),
-                data.urlFacebook(),
-                data.urlInstagram(),
-                data.tipo(),
-                data.isPrestadorServico()
-        );
-        System.out.println("ClinicaOrOngRequestDto "+data);
-        return userRepository.save(user);
-    }
+    return userRepository.save(user);
+  }
+
+  public void deleteUser(String id) {
+    User user = userRepository.findById(id)
+        .orElseThrow(() -> new NoSuchElementException("Usuário não encontrado"));
+    userRepository.delete(user);
+  }
+
 }
