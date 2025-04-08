@@ -20,10 +20,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/users")
@@ -35,6 +34,27 @@ public class UserController {
 
     public UserController(UserService userService) {
         this.userService = userService;
+    }
+
+    //Documentar ainda
+    @GetMapping
+    public ResponseEntity<GlobalResponseDto<List<User>>> findAllUser(){
+        List<User> listaUser = userService.listAllUser();
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new GlobalResponseDto<>(HttpStatus.OK.getReasonPhrase(),
+                        HttpStatus.OK.value(),
+                        listaUser));
+    }
+
+    //Documentar ainda
+    @GetMapping("/{id}")
+    public ResponseEntity<GlobalResponseDto<User>> findByIdUser(@PathVariable @Valid String id){
+        return userService.listByIdUser(id)
+                .map(result -> ResponseEntity.status(HttpStatus.OK).body(new GlobalResponseDto<>(
+                        HttpStatus.OK.getReasonPhrase(),
+                        HttpStatus.OK.value(),
+                        result)))
+                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     @PostMapping("/create")
@@ -53,7 +73,7 @@ public class UserController {
                 .status(HttpStatus.CREATED)
                 .body(new GlobalResponseDto<>(HttpStatus.CREATED.getReasonPhrase(),
                         HttpStatus.CREATED.value(),
-                        new UserResponseDto(user.getResponsavelNome(),user.getEmail(),user.getTipo())));
+                        new UserResponseDto(user.getResponsavelNome(),user.getUsername(),user.getTipo())));
     }
 
     //Documentar ainda
@@ -64,7 +84,7 @@ public class UserController {
                 .status(HttpStatus.CREATED)
                 .body(new GlobalResponseDto<>(HttpStatus.CREATED.getReasonPhrase(),
                         HttpStatus.CREATED.value(),
-                        new ClinicaOrOngResponseDto(user.getRazaoSocial(),user.getEmail(),user.getTipo())));
+                        new ClinicaOrOngResponseDto(user.getRazaoSocial(),user.getUsername(),user.getTipo())));
     }
 
     @PostMapping("/login")
@@ -75,12 +95,12 @@ public class UserController {
             @ApiResponse(responseCode = "500", description = SwaggerDocumentationConfig.RESPONSE_500)
     })
     public ResponseEntity<?> loginUser(@RequestBody @Valid AuthResquestDto data) {
-        AuthResquestDto user = userService.authenticate(data);
+        String token = userService.authenticate(data);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(new GlobalResponseDto<>(HttpStatus.OK.getReasonPhrase(),
                         HttpStatus.OK.value(),
-                        new AuthResponseDto(user.password())));
+                        new AuthResponseDto(token)));
     }
 
 

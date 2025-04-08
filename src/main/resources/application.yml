@@ -36,3 +36,7 @@ logging:
     org.springframework.web: DEBUG  # Logs detalhados das requisições web
     org.springframework.security: DEBUG  # Logs detalhados do Spring Security
     org.hibernate.orm.jdbc.bind: TRACE
+api:
+  security:
+    token:
+      secret: ${JWT_SECRET:my-secret-key}

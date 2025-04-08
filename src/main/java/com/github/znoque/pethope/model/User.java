@@ -6,12 +6,17 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
 @Table(name = "usuario")
-public class User {
+public class User implements UserDetails {
 
     @Id
     @Column(name = "usuario_id", updatable = false, nullable = false)
@@ -21,8 +26,8 @@ public class User {
     @NotBlank
     @NotNull
     @Size(min = 11, max = 155)
-    @Column(name = "usuario_email", length = 155, nullable = false, unique = true)
-    private String email;
+    @Column(name = "usuario_username", length = 155, nullable = false, unique = true)
+    private String username;
 
     @NotBlank
     @NotNull
@@ -42,14 +47,6 @@ public class User {
     @Column(name = "usuario_cpf_cnpj", nullable = false, unique = true)
     private String cpfCnpj;
 
-//    @NotBlank
-//    @NotNull
-//    @Column(name = "usuario_nome", nullable = false)
-//    private String nome;
-
-//    @Column(name = "usuario_nome_fantasia")
-//    private String nomeFantasia;
-
     @Column(name = "usuario_razao_social", unique = true)
     private String razaoSocial;
 
@@ -58,12 +55,6 @@ public class User {
     @Column(name = "usuario_responsavel_nome",nullable = false)
     private String responsavelNome;
 
-//    @Size(max=11)
-//    @Column(name = "usuario_responsavel_cpf")
-//    private String responsavelCpf;
-
-    //@NotBlank
-    //@NotNull
     @Size(max=14)
     @Column(name = "usuario_telefone", nullable = false)
     private String telefone;
@@ -71,29 +62,9 @@ public class User {
     @Column(name = "usuario_logradouro")
     private String logradouro;
 
-//    @NotBlank
-//    @NotNull
-//    @Size(max=10)
-//    @Column(name = "usuario_numero", nullable = false)
-//    private String numero;
-
-    //@NotBlank
-    //@NotNull
     @Size(max=150)
     @Column(name = "usuario_cidade", nullable = false)
     private String cidade;
-
-//    @NotBlank
-//    @NotNull
-//    @Size(max=2)
-//    @Column(name = "usuario_estado", nullable = false, length = 2)
-//    private String estado;
-
-//    @NotBlank
-//    @NotNull
-//    @Size(max=9)
-//    @Column(name = "usuario_cep", nullable = false)
-//    private String cep;
 
     @Column(name = "usuario_is_prestador_servico",nullable = false)
     private Boolean isPrestadorServico;
@@ -109,24 +80,24 @@ public class User {
 
 
 
-    public User(String cpfCnpj,String responsavelNome,String telefone,
+    public User(String cpfCnpj, String responsavelNome, String telefone,
                 String cidade, String logradouro,
-                String email, String senha, UsuarioTipo tipo) {
+                String username, String senha, UsuarioTipo tipo) {
         this.id = String.valueOf(UUID.randomUUID());
         this.cpfCnpj = cpfCnpj;
         this.responsavelNome = responsavelNome;
         this.telefone = telefone;
         this.cidade = cidade;
         this.logradouro = logradouro;
-        this.email = email;
+        this.username = username;
         this.senha = senha;
         this.tipo = tipo;
         this.isPrestadorServico = this.isPrestadorServico != null ? isPrestadorServico : false;
     }
 
-    public User(String cpfCnpj,String responsavelNome,
+    public User(String cpfCnpj, String responsavelNome,
                 String telefone, String cidade, String logradouro, String razaoSocial,
-                String email,String senha, String site, String urlInstagram, String urlFacebook,
+                String username, String senha, String site, String urlInstagram, String urlFacebook,
                 UsuarioTipo tipo, boolean isPrestadorServico) {
 
         this.id = String.valueOf(UUID.randomUUID());
@@ -136,7 +107,7 @@ public class User {
         this.cidade = cidade;
         this.logradouro = logradouro;
         this.razaoSocial = razaoSocial;
-        this.email = email;
+        this.username = username;
         this.senha = senha;
         this.site = site;
         this.urlInstagram = urlInstagram;
@@ -148,14 +119,6 @@ public class User {
     @Deprecated
     public User(){
 
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public String getSenha() {
-        return senha;
     }
 
     public String getId() {
@@ -170,14 +133,6 @@ public class User {
         return cpfCnpj;
     }
 
-//    public String getNome() {
-//        return nome;
-//    }
-
-//    public String getNomeFantasia() {
-//        return nomeFantasia;
-//    }
-
     public String getRazaoSocial() {
         return razaoSocial;
     }
@@ -185,10 +140,6 @@ public class User {
     public String getResponsavelNome() {
         return responsavelNome;
     }
-
-//    public String getResponsavelCpf() {
-//        return responsavelCpf;
-//    }
 
     public String getTelefone() {
         return telefone;
@@ -198,21 +149,9 @@ public class User {
         return logradouro;
     }
 
-//    public String getNumero() {
-//        return numero;
-//    }
-
     public String getCidade() {
         return cidade;
     }
-
-//    public String getEstado() {
-//        return estado;
-//    }
-//
-//    public String getCep() {
-//        return cep;
-//    }
 
     public Boolean getPrestadorServico() {
         return isPrestadorServico;
@@ -230,4 +169,41 @@ public class User {
         return urlFacebook;
     }
 
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+       if(this.tipo == UsuarioTipo.USUARIO) return List.of(new SimpleGrantedAuthority("USER_COMUM"));
+       if(this.tipo == UsuarioTipo.ONG) return List.of(new SimpleGrantedAuthority("USER_ONG"));
+       else return List.of(new SimpleGrantedAuthority("USER_CLINICA"));
+    }
+
+
+    @Override
+    public String getPassword() {
+        return this.senha;
+    }
+
+    @Override
+    public String getUsername() {
+        return this.username;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return UserDetails.super.isAccountNonExpired();
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return UserDetails.super.isAccountNonLocked();
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return UserDetails.super.isCredentialsNonExpired();
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return UserDetails.super.isEnabled();
+    }
 }

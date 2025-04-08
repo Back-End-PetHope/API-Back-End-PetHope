@@ -74,7 +74,7 @@ class UserServiceTest {
     @DisplayName("Deve lançar exceção quando a senha for inválida")
     void shouldThrowExceptionWhenPasswordIsInvalid() {
         when(userRepository.findByEmail(userRequestDto.email())).thenReturn(Optional.ofNullable(user));
-        when(passwordEncoder.matches(userRequestDto.password(), user.getSenha())).thenReturn(false);
+        when(passwordEncoder.matches(userRequestDto.password(), user.getPassword())).thenReturn(false);
 
         RuntimeException exception = assertThrows(RuntimeException.class, () -> userService.authenticate(authResquestDto));
         assertEquals("Senha inválida", exception.getMessage());
@@ -84,7 +84,7 @@ class UserServiceTest {
     @DisplayName("Deve autenticar o usuário com sucesso")
     void shouldAuthenticateUserSuccessfully() {
         when(userRepository.findByEmail(userRequestDto.email())).thenReturn(Optional.ofNullable(user));
-        when(passwordEncoder.matches(userRequestDto.password(), user.getSenha())).thenReturn(true);
+        when(passwordEncoder.matches(userRequestDto.password(), user.getPassword())).thenReturn(true);
 
         AuthResquestDto authenticatedUser = userService.authenticate(authResquestDto);
 
@@ -111,7 +111,7 @@ class UserServiceTest {
         User savedUser = userService.saveUser(userRequestDto);
 
         assertNotNull(savedUser);
-        assertEquals(userRequestDto.email(), savedUser.getEmail());
+        assertEquals(userRequestDto.email(), savedUser.getUsername());
         verify(userRepository, times(1)).save(any(User.class));
     }
 }
