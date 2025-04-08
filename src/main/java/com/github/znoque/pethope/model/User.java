@@ -45,7 +45,7 @@ public class User implements UserDetails {
 
     @NotBlank
     @NotNull
-    @Size(max=18)
+    @Size(max=14)
     @Column(name = "usuario_cpf_cnpj", nullable = false, unique = true)
     private String cpfCnpj;
 

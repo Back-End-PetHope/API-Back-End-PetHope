@@ -84,7 +84,7 @@ public class UserService {
                 .ifPresent(existingUser -> {
                     throw new DataIntegrityViolationException("Ong já criado com o e-mail: " + data.email());
                 });
-        System.out.println(data);
+
         User user = new User(
                 data.cnpj(),
                 data.responsavelNome(),
@@ -106,7 +106,7 @@ public class UserService {
     public User saveClinica(ClinicaRequestDto data) {
         userRepository.findByUsername(data.email())
                 .ifPresent(existingUser -> {
-                    throw new DataIntegrityViolationException("Ong já criado com o e-mail: " + data.email());
+                    throw new DataIntegrityViolationException("Clinica já criado com o e-mail: " + data.email());
                 });
         User user = new User(
                 data.cnpj(),
