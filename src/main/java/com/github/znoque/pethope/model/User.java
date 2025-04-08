@@ -45,7 +45,7 @@ public class User implements UserDetails {
 
     @NotBlank
     @NotNull
-    @Size(max=14)
+    @Size(max=18)
     @Column(name = "usuario_cpf_cnpj", nullable = false, unique = true)
     private String cpfCnpj;
 
@@ -82,11 +82,11 @@ public class User implements UserDetails {
 
 
 
-    public User(String cpfCnpj, String responsavelNome, String telefone,
+    public User(String cpf, String responsavelNome, String telefone,
                 String cidade, String logradouro,
                 String username, String senha, UsuarioTipo tipo) {
         this.id = String.valueOf(UUID.randomUUID());
-        this.cpfCnpj = cpfCnpj;
+        this.cpfCnpj = cpf;
         this.responsavelNome = responsavelNome;
         this.telefone = telefone;
         this.cidade = cidade;
@@ -97,13 +97,13 @@ public class User implements UserDetails {
         this.isPrestadorServico = this.isPrestadorServico != null ? isPrestadorServico : false;
     }
 
-    public User(String cpfCnpj, String responsavelNome,
+    public User(String Cnpj, String responsavelNome,
                 String telefone, String cidade, String logradouro, String razaoSocial,
                 String username, String senha, String site, String urlInstagram, String urlFacebook,
-                UsuarioTipo tipo, boolean isPrestadorServico) {
+                UsuarioTipo tipo, Boolean isPrestadorServico) {
 
         this.id = String.valueOf(UUID.randomUUID());
-        this.cpfCnpj = cpfCnpj;
+        this.cpfCnpj = Cnpj;
         this.responsavelNome = responsavelNome;
         this.telefone = telefone;
         this.cidade = cidade;
@@ -208,4 +208,5 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return UserDetails.super.isEnabled();
     }
+
 }

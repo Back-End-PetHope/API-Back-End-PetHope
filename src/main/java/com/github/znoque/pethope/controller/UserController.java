@@ -2,9 +2,10 @@ package com.github.znoque.pethope.controller;
 
 
 import com.github.znoque.pethope.config.SwaggerDocumentationConfig;
-import com.github.znoque.pethope.dto.GlocalResponseDto;
-import com.github.znoque.pethope.dto.clinica.ClinicaOrOngRequestDto;
 import com.github.znoque.pethope.dto.GlobalResponseDto;
+import com.github.znoque.pethope.dto.clinica.ClinicaRequestDto;
+import com.github.znoque.pethope.dto.GlobalPatternResponseDto;
+import com.github.znoque.pethope.dto.ong.OngRequestDto;
 import com.github.znoque.pethope.dto.user.AuthResponseDto;
 import com.github.znoque.pethope.dto.user.AuthResquestDto;
 import com.github.znoque.pethope.dto.user.UserRequestDto;
@@ -37,26 +38,26 @@ public class UserController {
 
     //Documentar ainda
     @GetMapping
-    public ResponseEntity<GlobalResponseDto<List<GlocalResponseDto>>> findAllUser(){
-        List<GlocalResponseDto> listaUser = userService.listAllUser();
+    public ResponseEntity<GlobalPatternResponseDto<List<GlobalResponseDto>>> findAllUser(){
+        List<GlobalResponseDto> listaUser = userService.listAllUser();
         return ResponseEntity.status(HttpStatus.OK)
-                .body(new GlobalResponseDto<>(HttpStatus.OK.getReasonPhrase(),
+                .body(new GlobalPatternResponseDto<>(HttpStatus.OK.getReasonPhrase(),
                         HttpStatus.OK.value(),
                         listaUser));
     }
 
     //Documentar ainda
     @GetMapping("/{id}")
-    public ResponseEntity<GlobalResponseDto<User>> findByIdUser(@PathVariable @Valid String id){
+    public ResponseEntity<GlobalPatternResponseDto<User>> findByIdUser(@PathVariable @Valid String id){
         return userService.listByIdUser(id)
-                .map(result -> ResponseEntity.status(HttpStatus.OK).body(new GlobalResponseDto<>(
+                .map(result -> ResponseEntity.status(HttpStatus.OK).body(new GlobalPatternResponseDto<>(
                         HttpStatus.OK.getReasonPhrase(),
                         HttpStatus.OK.value(),
                         result)))
                 .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
-    @PostMapping("/create")
+    @PostMapping()
     @Operation(
             summary = SwaggerDocumentationConfig.SUMARIO_USER,
             description = SwaggerDocumentationConfig.DESCRICAO_USER
@@ -70,18 +71,29 @@ public class UserController {
         User user = userService.saveUser(data);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(new GlobalResponseDto<>(HttpStatus.CREATED.getReasonPhrase(),
+                .body(new GlobalPatternResponseDto<>(HttpStatus.CREATED.getReasonPhrase(),
+                        HttpStatus.CREATED.value(),
+                        userService.toUserResponseDto(user)));
+    }
+
+    //Documentar ainda
+    @PostMapping("/clinica")
+    public ResponseEntity<?> createClinica(@RequestBody @Valid ClinicaRequestDto data) {
+        User user = userService.saveClinica(data);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(new GlobalPatternResponseDto<>(HttpStatus.CREATED.getReasonPhrase(),
                         HttpStatus.CREATED.value(),
                         userService.toGlocalResponseDto(user)));
     }
 
     //Documentar ainda
-    @PostMapping("/create/ClinicaOrOng")
-    public ResponseEntity<?> createClinicaOrOng(@RequestBody @Valid ClinicaOrOngRequestDto data) {
-        User user = userService.saveClinicaOrOng(data);
+    @PostMapping("/ong")
+    public ResponseEntity<?> createOng(@RequestBody @Valid OngRequestDto data) {
+        User user = userService.saveOng(data);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(new GlobalResponseDto<>(HttpStatus.CREATED.getReasonPhrase(),
+                .body(new GlobalPatternResponseDto<>(HttpStatus.CREATED.getReasonPhrase(),
                         HttpStatus.CREATED.value(),
                         userService.toGlocalResponseDto(user)));
     }
@@ -97,7 +109,7 @@ public class UserController {
         String token = userService.authenticate(data);
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(new GlobalResponseDto<>(HttpStatus.OK.getReasonPhrase(),
+                .body(new GlobalPatternResponseDto<>(HttpStatus.OK.getReasonPhrase(),
                         HttpStatus.OK.value(),
                         new AuthResponseDto(token)));
     }

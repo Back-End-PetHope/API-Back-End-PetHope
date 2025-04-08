@@ -28,10 +28,10 @@ public class SecurityConfig {
                                         "/swagger-ui/**",
                                         "/v3/api-docs/**",
                                         "/users/login",
-                                        "/users/create",
-                                "/users/create/ClinicaOrOng",
-                                "/users",
-                                "/users/{id}"
+                                        "/users",
+                                        "/users/clinica",
+                                        "/users/ong",
+                                        "/users/{id}"
                                 )
                                 .permitAll()
                                 .anyRequest().authenticated())

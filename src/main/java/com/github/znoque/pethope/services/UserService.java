@@ -1,9 +1,12 @@
 package com.github.znoque.pethope.services;
 
-import com.github.znoque.pethope.dto.GlocalResponseDto;
-import com.github.znoque.pethope.dto.clinica.ClinicaOrOngRequestDto;
+import com.github.znoque.pethope.dto.GlobalResponseDto;
+import com.github.znoque.pethope.dto.clinica.ClinicaRequestDto;
+import com.github.znoque.pethope.dto.ong.OngRequestDto;
 import com.github.znoque.pethope.dto.user.AuthResquestDto;
 import com.github.znoque.pethope.dto.user.UserRequestDto;
+import com.github.znoque.pethope.dto.user.UserResponseDto;
+import com.github.znoque.pethope.enums.UsuarioTipo;
 import com.github.znoque.pethope.model.User;
 import com.github.znoque.pethope.repository.UserRepository;
 import com.github.znoque.pethope.security.TokenService;
@@ -35,7 +38,7 @@ public class UserService {
         this.tokenService = tokenService;
     }
 
-    public List<GlocalResponseDto> listAllUser(){
+    public List<GlobalResponseDto> listAllUser(){
         List<User> lista = userRepository.findAll();
         return lista.stream().map(this::toGlocalResponseDto).toList();
     }
@@ -63,7 +66,6 @@ public class UserService {
                 .ifPresent(existingUser -> {
                     throw new DataIntegrityViolationException("Usuário já criado com o e-mail: " + data.email());
                 });
-        System.out.println(data.tipo());
         User user = new User(
                 data.cpf(),
                 data.responsavelNome(),
@@ -72,12 +74,36 @@ public class UserService {
                 data.endereco(),
                 data.email(),
                 passwordEncoder.encode(data.password()),
-                data.tipo()
+                UsuarioTipo.USUARIO
         );
         return userRepository.save(user);
     }
 
-    public User saveClinicaOrOng(ClinicaOrOngRequestDto data) {
+    public User saveOng(OngRequestDto data) {
+        userRepository.findByUsername(data.email())
+                .ifPresent(existingUser -> {
+                    throw new DataIntegrityViolationException("Ong já criado com o e-mail: " + data.email());
+                });
+        System.out.println(data);
+        User user = new User(
+                data.cnpj(),
+                data.responsavelNome(),
+                data.telefone(),
+                data.cidade(),
+                data.endereco(),
+                data.razaoSocial(),
+                data.email(),
+                passwordEncoder.encode(data.senha()),
+                data.site(),
+                data.urlFacebook(),
+                data.urlInstagram(),
+                UsuarioTipo.ONG,
+                data.isPrestadorServico()
+        );
+        return userRepository.save(user);
+    }
+
+    public User saveClinica(ClinicaRequestDto data) {
         userRepository.findByUsername(data.email())
                 .ifPresent(existingUser -> {
                     throw new DataIntegrityViolationException("Ong já criado com o e-mail: " + data.email());
@@ -94,18 +120,35 @@ public class UserService {
                 data.site(),
                 data.urlFacebook(),
                 data.urlInstagram(),
-                data.tipo(),
+                UsuarioTipo.CLINICA,
                 data.isPrestadorServico()
         );
-        System.out.println("ClinicaOrOngRequestDto "+data);
         return userRepository.save(user);
     }
 
-    public GlocalResponseDto toGlocalResponseDto(User user) {
+    public UserResponseDto toUserResponseDto(User user) {
 
         List<String> authorities = user.getAuthorities()
                 .stream().map(GrantedAuthority::getAuthority).toList();
-        return new GlocalResponseDto(
+        return new UserResponseDto(
+                user.getId(),
+                user.getUsername(),
+                user.getTipo(),
+                user.getCpfCnpj(),
+                user.getResponsavelNome(),
+                user.getTelefone(),
+                user.getLogradouro(),
+                user.getCidade(),
+                user.getPrestadorServico(),
+                authorities
+        );
+    }
+
+    public GlobalResponseDto toGlocalResponseDto(User user) {
+
+        List<String> authorities = user.getAuthorities()
+                .stream().map(GrantedAuthority::getAuthority).toList();
+        return new GlobalResponseDto(
                 user.getId(),
                 user.getUsername(),
                 user.getTipo(),
@@ -122,6 +165,8 @@ public class UserService {
                 authorities
         );
     }
+
+
 
 
 }
