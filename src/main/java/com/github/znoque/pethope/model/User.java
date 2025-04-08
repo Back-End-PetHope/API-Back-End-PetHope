@@ -1,5 +1,6 @@
 package com.github.znoque.pethope.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.github.znoque.pethope.enums.UsuarioTipo;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -40,6 +41,7 @@ public class User implements UserDetails {
     @Column(name = "usuario_tipo", nullable = false)
     @Enumerated(EnumType.STRING)
     private UsuarioTipo tipo;
+
 
     @NotBlank
     @NotNull

@@ -2,13 +2,12 @@ package com.github.znoque.pethope.controller;
 
 
 import com.github.znoque.pethope.config.SwaggerDocumentationConfig;
+import com.github.znoque.pethope.dto.GlocalResponseDto;
 import com.github.znoque.pethope.dto.clinica.ClinicaOrOngRequestDto;
-import com.github.znoque.pethope.dto.clinica.ClinicaOrOngResponseDto;
 import com.github.znoque.pethope.dto.GlobalResponseDto;
 import com.github.znoque.pethope.dto.user.AuthResponseDto;
 import com.github.znoque.pethope.dto.user.AuthResquestDto;
 import com.github.znoque.pethope.dto.user.UserRequestDto;
-import com.github.znoque.pethope.dto.user.UserResponseDto;
 import com.github.znoque.pethope.model.User;
 import com.github.znoque.pethope.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -38,8 +37,8 @@ public class UserController {
 
     //Documentar ainda
     @GetMapping
-    public ResponseEntity<GlobalResponseDto<List<User>>> findAllUser(){
-        List<User> listaUser = userService.listAllUser();
+    public ResponseEntity<GlobalResponseDto<List<GlocalResponseDto>>> findAllUser(){
+        List<GlocalResponseDto> listaUser = userService.listAllUser();
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new GlobalResponseDto<>(HttpStatus.OK.getReasonPhrase(),
                         HttpStatus.OK.value(),
@@ -73,7 +72,7 @@ public class UserController {
                 .status(HttpStatus.CREATED)
                 .body(new GlobalResponseDto<>(HttpStatus.CREATED.getReasonPhrase(),
                         HttpStatus.CREATED.value(),
-                        new UserResponseDto(user.getResponsavelNome(),user.getUsername(),user.getTipo())));
+                        userService.toGlocalResponseDto(user)));
     }
 
     //Documentar ainda
@@ -84,7 +83,7 @@ public class UserController {
                 .status(HttpStatus.CREATED)
                 .body(new GlobalResponseDto<>(HttpStatus.CREATED.getReasonPhrase(),
                         HttpStatus.CREATED.value(),
-                        new ClinicaOrOngResponseDto(user.getRazaoSocial(),user.getUsername(),user.getTipo())));
+                        userService.toGlocalResponseDto(user)));
     }
 
     @PostMapping("/login")

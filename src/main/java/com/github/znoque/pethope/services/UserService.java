@@ -1,21 +1,17 @@
 package com.github.znoque.pethope.services;
 
+import com.github.znoque.pethope.dto.GlocalResponseDto;
 import com.github.znoque.pethope.dto.clinica.ClinicaOrOngRequestDto;
-import com.github.znoque.pethope.dto.user.AuthResponseDto;
 import com.github.znoque.pethope.dto.user.AuthResquestDto;
 import com.github.znoque.pethope.dto.user.UserRequestDto;
 import com.github.znoque.pethope.model.User;
 import com.github.znoque.pethope.repository.UserRepository;
 import com.github.znoque.pethope.security.TokenService;
 import jakarta.persistence.EntityNotFoundException;
-import org.antlr.v4.runtime.Token;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -39,9 +35,11 @@ public class UserService {
         this.tokenService = tokenService;
     }
 
-    public List<User> listAllUser(){
-        return userRepository.findAll();
+    public List<GlocalResponseDto> listAllUser(){
+        List<User> lista = userRepository.findAll();
+        return lista.stream().map(this::toGlocalResponseDto).toList();
     }
+
 
     public Optional<User> listByIdUser(String id){
         return Optional.ofNullable(userRepository.findById(id))
@@ -102,5 +100,28 @@ public class UserService {
         System.out.println("ClinicaOrOngRequestDto "+data);
         return userRepository.save(user);
     }
+
+    public GlocalResponseDto toGlocalResponseDto(User user) {
+
+        List<String> authorities = user.getAuthorities()
+                .stream().map(GrantedAuthority::getAuthority).toList();
+        return new GlocalResponseDto(
+                user.getId(),
+                user.getUsername(),
+                user.getTipo(),
+                user.getCpfCnpj(),
+                user.getRazaoSocial(),
+                user.getResponsavelNome(),
+                user.getTelefone(),
+                user.getLogradouro(),
+                user.getCidade(),
+                user.getSite(),
+                user.getUrlInstagram(),
+                user.getUrlFacebook(),
+                user.getPrestadorServico(),
+                authorities
+        );
+    }
+
 
 }
