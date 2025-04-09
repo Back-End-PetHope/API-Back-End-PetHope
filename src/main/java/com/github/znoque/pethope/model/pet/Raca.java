@@ -6,35 +6,50 @@ import java.util.List;
 
 public enum Raca {
     // Cachorro
-    PASTOR_ALEMAO(Especie.CACHORRO),
-    LABRADOR(Especie.CACHORRO),
-    CAO_SRD(Especie.CACHORRO),
-    POODLE(Especie.CACHORRO),
-    GOLDEN_RETRIEVER(Especie.CACHORRO),
-    ROTTWEILER(Especie.CACHORRO),
+    PASTOR_ALEMAO("Pastor Alemão", Especie.CACHORRO),
+    LABRADOR("Labrador", Especie.CACHORRO),
+    CAO_SRD("Cachorro SRD", Especie.CACHORRO),
+    POODLE("Poodle", Especie.CACHORRO),
+    GOLDEN_RETRIEVER("Golden Retriver", Especie.CACHORRO),
+    ROTTWEILER("Rottweiler", Especie.CACHORRO),
 
     // Gato
-    PERSA(Especie.GATO),
-    SIAMES(Especie.GATO),
-    ANGORA(Especie.GATO),
-    GATO_SRD(Especie.GATO),
+    PERSA("Persa", Especie.GATO),
+    SIAMES("Siamês", Especie.GATO),
+    ANGORA("Angorá", Especie.GATO),
+    GATO_SRD("Gato SRD", Especie.GATO),
 
     // Pássaro
-    CALOPSITA(Especie.PASSARO),
-    PERIQUITO(Especie.PASSARO);
+    CALOPSITA("Calopsita", Especie.PASSARO),
+    PERIQUITO("Periquito", Especie.PASSARO);
 
     private final Especie especie;
+    private final String displayName;
 
-    Raca(Especie especie) {
+    Raca(String displayName, Especie especie) {
+        this.displayName = displayName;
         this.especie = especie;
+    }
+
+    public String getDisplayName() {
+        return displayName;
     }
 
     public Especie getEspecie() {
         return especie;
     }
 
+    public static Raca fromDisplayName(String displayName) {
+        return Arrays.stream(Raca.values())
+                .filter(r -> r.getDisplayName().equalsIgnoreCase(displayName))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Raça inválida."));
+    }
+
+
     public static List<Raca> getRacasByEspecie(Especie especie) {
-        return Arrays.stream(values()).filter(r -> r.getEspecie() == especie)
+        return Arrays.stream(values())
+                .filter(r -> r.getEspecie() == especie)
                 .collect(Collectors.toList());
     }
 }
