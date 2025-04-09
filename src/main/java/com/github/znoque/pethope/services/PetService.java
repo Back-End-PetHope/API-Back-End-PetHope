@@ -3,7 +3,9 @@ package com.github.znoque.pethope.services;
 import com.github.znoque.pethope.dto.PetDto;
 import com.github.znoque.pethope.model.pet.Especie;
 import com.github.znoque.pethope.model.pet.Pet;
+import com.github.znoque.pethope.model.pet.Raca;
 import com.github.znoque.pethope.repository.PetRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -38,12 +40,12 @@ public class PetService {
     }
 
     public Pet getPetById (int id) {
-        return petRepository.findById(id).orElseThrow(() -> new RuntimeException("Pet não existe"));
+        return petRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Pet não encontrado com o id: " + id));
 
     }
 
     public Pet updatePet (PetDto petDto, int id) {
-        Pet pet = petRepository.findById(id).orElseThrow(() -> new RuntimeException("Pet não encontrado"));
+        Pet pet = petRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Pet não encontrado com o id: " + id));
 
         pet.setNome(petDto.nome());
         pet.setDescricao(petDto.descricao());
@@ -54,7 +56,7 @@ public class PetService {
         pet.setAtivo(petDto.ativo());
         pet.setDisponibilidade(pet.isDisponibilidade());
 
-            return petRepository.save(pet);
+        return petRepository.save(pet);
 
     }
 
@@ -62,7 +64,7 @@ public class PetService {
        if(petRepository.existsById(id)) {
            petRepository.deleteById(id);
        } else {
-           throw new RuntimeException("Pet não existe ou ja deletado");
+           throw new RuntimeException("Pet não existe ou já deletado.");
        }
     }
 
@@ -70,19 +72,19 @@ public class PetService {
         return petRepository.findByEspecie(especie);
     }
 
-    public List<Pet> findByRaca(String raca) {
+    public List<Pet> findByRaca(Raca raca) {
         return petRepository.findByRaca(raca);
     }
 
     public List<Pet> findByIdadeBetween(int idadeMin, int idadeMax) {
         if(idadeMin > idadeMax) {
-            throw new RuntimeException("Idade minima não pode ser maior que idade máxima");
+            throw new IllegalArgumentException("Idade minima não pode ser maior que idade máxima.");
         }
         return petRepository.findByIdadeBetween(idadeMin, idadeMax);
     }
 
     public Pet inativarPet(int id) {
-        Pet petInativado = petRepository.findById(id).orElseThrow(() -> new RuntimeException("Pet não encontrado"));
+        Pet petInativado = petRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Pet não encontrado."));
 
         petInativado.setAtivo(false);
 
