@@ -55,8 +55,8 @@ class UserControllerTest {
                 "São Paulo",
                 "Rua Exemplo, 123",
                 "test@example.com",
-                "password123",
-                UsuarioTipo.USUARIO
+                "password123"
+
         );
 
         user = new User(
@@ -67,7 +67,7 @@ class UserControllerTest {
                 userRequestDto.endereco(),
                 userRequestDto.email(),
                 "encodedPassword", // Aqui assumo que a senha será codificada antes de ser salva
-                userRequestDto.tipo()
+                UsuarioTipo.USUARIO
         );
     }
 
@@ -119,7 +119,8 @@ class UserControllerTest {
     @Test
     @DisplayName("Deve logar usuário com sucesso e retornar 200 OK")
     void shouldLoginUserSuccessfullyAndReturn200OK() throws Exception {
-        when(userService.authenticate(authResquestDto)).thenReturn(authResquestDto);
+        String tokenFake = "jwt.token.fake";
+        when(userService.authenticate(authResquestDto)).thenReturn(tokenFake);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/users/login")
                         .contentType(MediaType.APPLICATION_JSON)
