@@ -1,4 +1,21 @@
 package com.github.znoque.pethope.dto;
 
-public record GlobalResponseDto<T>(String message, int statusCode, T data) {
+import com.github.znoque.pethope.enums.UsuarioTipo;
+
+import java.util.List;
+
+public record GlobalResponseDto(String id,
+    String username,
+    UsuarioTipo tipo,
+    String cpfCnpj,
+    String razaoSocial,
+    String responsavelNome,
+    String telefone,
+    String logradouro,
+    String cidade,
+    String site,
+    String urlInstagram,
+    String urlFacebook,
+    boolean prestadorServico,
+    List<String> authorities) {
 }

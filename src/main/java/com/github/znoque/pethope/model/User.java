@@ -1,17 +1,23 @@
 package com.github.znoque.pethope.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.github.znoque.pethope.enums.UsuarioTipo;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
 @Table(name = "usuario")
-public class User {
+public class User implements UserDetails {
 
   @Id
   @Column(name = "usuario_id", updatable = false, nullable = false)
@@ -21,8 +27,8 @@ public class User {
   @NotBlank
   @NotNull
   @Size(min = 11, max = 155)
-  @Column(name = "usuario_email", length = 155, nullable = false, unique = true)
-  private String email;
+  @Column(name = "usuario_username", length = 155, nullable = false, unique = true)
+  private String username;
 
   @NotBlank
   @NotNull
@@ -72,53 +78,45 @@ public class User {
   @Column(name = "usuario_url_facebook")
   private String urlFacebook;
 
-  // Construtores
-  public User(String cpfCnpj, String responsavelNome, String telefone,
+  public User(String cpf, String responsavelNome, String telefone,
       String cidade, String logradouro,
-      String email, String senha, UsuarioTipo tipo) {
+      String username, String senha, UsuarioTipo tipo) {
     this.id = String.valueOf(UUID.randomUUID());
-    this.cpfCnpj = cpfCnpj;
+    this.cpfCnpj = cpf;
     this.responsavelNome = responsavelNome;
     this.telefone = telefone;
     this.cidade = cidade;
     this.logradouro = logradouro;
-    this.email = email;
+    this.username = username;
     this.senha = senha;
     this.tipo = tipo;
     this.isPrestadorServico = this.isPrestadorServico != null ? isPrestadorServico : false;
   }
 
-  public User(String cpfCnpj, String responsavelNome,
+  public User(String Cnpj, String responsavelNome,
       String telefone, String cidade, String logradouro, String razaoSocial,
-      String email, String senha, String site, String urlInstagram, String urlFacebook,
-      UsuarioTipo tipo, boolean isPrestadorServico) {
+      String username, String senha, String site, String urlInstagram, String urlFacebook,
+      UsuarioTipo tipo, Boolean isPrestadorServico) {
+
     this.id = String.valueOf(UUID.randomUUID());
-    this.cpfCnpj = cpfCnpj;
+    this.cpfCnpj = Cnpj;
     this.responsavelNome = responsavelNome;
     this.telefone = telefone;
     this.cidade = cidade;
     this.logradouro = logradouro;
     this.razaoSocial = razaoSocial;
-    this.email = email;
+    this.username = username;
     this.senha = senha;
     this.site = site;
     this.urlInstagram = urlInstagram;
     this.urlFacebook = urlFacebook;
     this.tipo = tipo;
-    this.isPrestadorServico = isPrestadorServico;
+    this.isPrestadorServico = this.isPrestadorServico != null ? isPrestadorServico : false;
   }
 
   @Deprecated
   public User() {
-  }
 
-  // Getters
-  public String getEmail() {
-    return email;
-  }
-
-  public String getSenha() {
-    return senha;
   }
 
   public String getId() {
@@ -169,9 +167,48 @@ public class User {
     return urlFacebook;
   }
 
-  // Setters necessários para o updateUser
-  public void setEmail(String email) {
-    this.email = email;
+  @Override
+  public Collection<? extends GrantedAuthority> getAuthorities() {
+    if (this.tipo == UsuarioTipo.USUARIO)
+      return List.of(new SimpleGrantedAuthority("USER_COMUM"));
+    if (this.tipo == UsuarioTipo.ONG)
+      return List.of(new SimpleGrantedAuthority("USER_ONG"));
+    else
+      return List.of(new SimpleGrantedAuthority("USER_CLINICA"));
+  }
+
+  @Override
+  public String getPassword() {
+    return this.senha;
+  }
+
+  @Override
+  public String getUsername() {
+    return this.username;
+  }
+
+  @Override
+  public boolean isAccountNonExpired() {
+    return UserDetails.super.isAccountNonExpired();
+  }
+
+  @Override
+  public boolean isAccountNonLocked() {
+    return UserDetails.super.isAccountNonLocked();
+  }
+
+  @Override
+  public boolean isCredentialsNonExpired() {
+    return UserDetails.super.isCredentialsNonExpired();
+  }
+
+  @Override
+  public boolean isEnabled() {
+    return UserDetails.super.isEnabled();
+  }
+
+  public void setUsername(String username) {
+    this.username = username;
   }
 
   public void setSenha(String senha) {
@@ -221,4 +258,5 @@ public class User {
   public void setUrlFacebook(String urlFacebook) {
     this.urlFacebook = urlFacebook;
   }
+
 }

@@ -1,4 +1,4 @@
 package com.github.znoque.pethope.dto.user;
 
-public record AuthResquestDto(String email, String password) {
+public record AuthResquestDto(String username, String password) {
 }

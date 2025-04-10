@@ -1,4 +1,4 @@
-package com.github.znoque.pethope.dto.clinica;
+package com.github.znoque.pethope.dto.ong;
 
 import com.github.znoque.pethope.enums.UsuarioTipo;
 import jakarta.persistence.EnumType;
@@ -6,9 +6,10 @@ import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import org.hibernate.validator.constraints.br.CNPJ;
 
-public record ClinicaOrOngRequestDto(
-
+public record OngRequestDto(
+                                @CNPJ
                                 @NotBlank(message = "CNPJ não pode ser vazio")
                                 @Size(message = "CNPJ deve conter até 14 digitos")
                                 String cnpj,
@@ -51,8 +52,5 @@ public record ClinicaOrOngRequestDto(
                                 @Size(message = "UrlInstagram deve conter até 150 caracteres")
                                 String urlInstagram,
 
-                                @Enumerated(EnumType.STRING)
-                                UsuarioTipo tipo,
-
-                                boolean isPrestadorServico) {
+                                Boolean isPrestadorServico) {
 }

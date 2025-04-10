@@ -1,40 +1,37 @@
 package com.github.znoque.pethope.controller;
 
 import com.github.znoque.pethope.config.SwaggerDocumentationConfig;
-import com.github.znoque.pethope.dto.clinica.ClinicaOrOngRequestDto;
-import com.github.znoque.pethope.dto.clinica.ClinicaOrOngResponseDto;
+import com.github.znoque.pethope.config.UserApi;
 import com.github.znoque.pethope.dto.GlobalResponseDto;
+import com.github.znoque.pethope.dto.clinica.ClinicaRequestDto;
+import com.github.znoque.pethope.dto.GlobalPatternResponseDto;
+import com.github.znoque.pethope.dto.ong.OngRequestDto;
 import com.github.znoque.pethope.dto.user.AuthResponseDto;
 import com.github.znoque.pethope.dto.user.AuthResquestDto;
 import com.github.znoque.pethope.dto.user.UserRequestDto;
 import com.github.znoque.pethope.dto.user.UserResponseDto;
+import com.github.znoque.pethope.dto.user.UserUpdateRequestDto;
 import com.github.znoque.pethope.model.User;
 import com.github.znoque.pethope.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-
-import java.util.NoSuchElementException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-@RestController
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+
 @RequestMapping("/users")
-@Tag(name = SwaggerDocumentationConfig.TAG_USER)
-public class UserController {
+@RestController
+
+public class UserController implements UserApi {
 
   private static final Logger logger = LoggerFactory.getLogger(UserController.class);
   private final UserService userService;
@@ -43,47 +40,68 @@ public class UserController {
     this.userService = userService;
   }
 
-  @PostMapping("/create")
-  @Operation(summary = SwaggerDocumentationConfig.SUMARIO_USER, description = SwaggerDocumentationConfig.DESCRICAO_USER)
-  @ApiResponses({
-      @ApiResponse(responseCode = "201", description = SwaggerDocumentationConfig.RESPONSE_201),
-      @ApiResponse(responseCode = "422", description = SwaggerDocumentationConfig.RESPONSE_422),
-      @ApiResponse(responseCode = "500", description = SwaggerDocumentationConfig.RESPONSE_500)
-  })
+  @GetMapping
+  @Override
+  public ResponseEntity<GlobalPatternResponseDto<List<GlobalResponseDto>>> findAllUser() {
+    return Optional.ofNullable(userService.listAllUser())
+        .filter(list -> !list.isEmpty())
+        .map(listaUser -> ResponseEntity.status(HttpStatus.OK)
+            .body(new GlobalPatternResponseDto<>(HttpStatus.OK.getReasonPhrase(),
+                listaUser)))
+        .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
+            .body(new GlobalPatternResponseDto<>(
+                HttpStatus.NOT_FOUND.getReasonPhrase(),
+                null)));
+  }
+
+  @GetMapping("/{id}")
+  @Override
+  public ResponseEntity<GlobalPatternResponseDto<User>> findByIdUser(@PathVariable @Valid String id) {
+    return userService.listByIdUser(id)
+        .map(result -> ResponseEntity.status(HttpStatus.OK).body(new GlobalPatternResponseDto<>(
+            HttpStatus.OK.getReasonPhrase(),
+            result)))
+        .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+  }
+
+  @PostMapping()
+  @Override
   public ResponseEntity<?> createUser(@RequestBody @Valid UserRequestDto data) {
     User user = userService.saveUser(data);
     return ResponseEntity
         .status(HttpStatus.CREATED)
-        .body(new GlobalResponseDto<>(HttpStatus.CREATED.getReasonPhrase(),
-            HttpStatus.CREATED.value(),
-            new UserResponseDto(user.getResponsavelNome(), user.getEmail(), user.getTipo())));
+        .body(new GlobalPatternResponseDto<>(HttpStatus.CREATED.getReasonPhrase(),
+            userService.toUserResponseDto(user)));
   }
 
-  // Documentar ainda
-  @PostMapping("/create/ClinicaOrOng")
-  public ResponseEntity<?> createClinicaOrOng(@RequestBody @Valid ClinicaOrOngRequestDto data) {
-    User user = userService.saveClinicaOrOng(data);
+  @PostMapping("/clinica")
+  @Override
+  public ResponseEntity<?> createClinica(@RequestBody @Valid ClinicaRequestDto data) {
+    User user = userService.saveClinica(data);
     return ResponseEntity
         .status(HttpStatus.CREATED)
-        .body(new GlobalResponseDto<>(HttpStatus.CREATED.getReasonPhrase(),
-            HttpStatus.CREATED.value(),
-            new ClinicaOrOngResponseDto(user.getRazaoSocial(), user.getEmail(), user.getTipo())));
+        .body(new GlobalPatternResponseDto<>(HttpStatus.CREATED.getReasonPhrase(),
+            userService.toGlocalResponseDto(user)));
+  }
+
+  @PostMapping("/ong")
+  @Override
+  public ResponseEntity<?> createOng(@RequestBody @Valid OngRequestDto data) {
+    User user = userService.saveOng(data);
+    return ResponseEntity
+        .status(HttpStatus.CREATED)
+        .body(new GlobalPatternResponseDto<>(HttpStatus.CREATED.getReasonPhrase(),
+            userService.toGlocalResponseDto(user)));
   }
 
   @PostMapping("/login")
-  @Operation(summary = SwaggerDocumentationConfig.SUMARIO_LOGIN, description = SwaggerDocumentationConfig.DESCRICAO_LOGIN)
-  @ApiResponses({
-      @ApiResponse(responseCode = "200", description = SwaggerDocumentationConfig.RESPONSE_200),
-      @ApiResponse(responseCode = "404", description = SwaggerDocumentationConfig.RESPONSE_404),
-      @ApiResponse(responseCode = "500", description = SwaggerDocumentationConfig.RESPONSE_500)
-  })
+  @Override
   public ResponseEntity<?> loginUser(@RequestBody @Valid AuthResquestDto data) {
-    AuthResquestDto user = userService.authenticate(data);
+    String token = userService.authenticate(data);
     return ResponseEntity
         .status(HttpStatus.OK)
-        .body(new GlobalResponseDto<>(HttpStatus.OK.getReasonPhrase(),
-            HttpStatus.OK.value(),
-            new AuthResponseDto(user.password())));
+        .body(new GlobalPatternResponseDto<>(HttpStatus.OK.getReasonPhrase(),
+            new AuthResponseDto(token)));
   }
 
   @PatchMapping("/{id}")
@@ -94,24 +112,23 @@ public class UserController {
       @ApiResponse(responseCode = "400", description = SwaggerDocumentationConfig.RESPONSE_400),
       @ApiResponse(responseCode = "500", description = SwaggerDocumentationConfig.RESPONSE_500)
   })
-  public ResponseEntity<?> updateUser(@PathVariable String id, @RequestBody @Valid UserRequestDto data) {
+  public ResponseEntity<?> updateUser(@PathVariable String id, @RequestBody @Valid UserUpdateRequestDto data) {
     try {
       User updatedUser = userService.updateUser(id, data);
       return ResponseEntity
           .status(HttpStatus.OK)
-          .body(new GlobalResponseDto<>(HttpStatus.OK.getReasonPhrase(),
-              HttpStatus.OK.value(),
-              new UserResponseDto(updatedUser.getResponsavelNome(), updatedUser.getEmail(), updatedUser.getTipo())));
+          .body(new GlobalPatternResponseDto<>(HttpStatus.OK.getReasonPhrase(),
+              userService.toGlocalResponseDto(updatedUser)));
     } catch (NoSuchElementException e) {
       return ResponseEntity
           .status(HttpStatus.NOT_FOUND)
-          .body(new GlobalResponseDto<>(HttpStatus.NOT_FOUND.getReasonPhrase(),
-              HttpStatus.NOT_FOUND.value(), "Usuário não encontrado"));
+          .body(new GlobalPatternResponseDto<>(HttpStatus.NOT_FOUND.getReasonPhrase(),
+              "Usuário não encontrado"));
     } catch (DataIntegrityViolationException e) {
       return ResponseEntity
           .status(HttpStatus.BAD_REQUEST)
-          .body(new GlobalResponseDto<>(HttpStatus.BAD_REQUEST.getReasonPhrase(),
-              HttpStatus.BAD_REQUEST.value(), e.getMessage()));
+          .body(new GlobalPatternResponseDto<>(HttpStatus.BAD_REQUEST.getReasonPhrase(),
+              "Erro de integridade de dados: " + e.getMessage()));
     }
   }
 
@@ -127,13 +144,13 @@ public class UserController {
       userService.deleteUser(id);
       return ResponseEntity
           .status(HttpStatus.NO_CONTENT)
-          .body(new GlobalResponseDto<>(HttpStatus.NO_CONTENT.getReasonPhrase(),
-              HttpStatus.NO_CONTENT.value(), "Usuário deletado com sucesso"));
+          .body(new GlobalPatternResponseDto<>(HttpStatus.NO_CONTENT.getReasonPhrase(),
+              "Usuário deletado com sucesso"));
     } catch (NoSuchElementException e) {
       return ResponseEntity
           .status(HttpStatus.NOT_FOUND)
-          .body(new GlobalResponseDto<>(HttpStatus.NOT_FOUND.getReasonPhrase(),
-              HttpStatus.NOT_FOUND.value(), "Usuário não encontrado"));
+          .body(new GlobalPatternResponseDto<>(HttpStatus.NOT_FOUND.getReasonPhrase(),
+              "Usuário não encontrado"));
     }
   }
 
