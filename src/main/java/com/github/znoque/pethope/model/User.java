@@ -259,4 +259,23 @@ public class User implements UserDetails {
     this.urlFacebook = urlFacebook;
   }
 
+  @Override
+  public String toString() {
+    return "User{" +
+            "id='" + id + '\'' +
+            ", email='" + username + '\'' +
+            ", senha='" + senha + '\'' +
+            ", tipo=" + tipo +
+            ", cpfCnpj='" + cpfCnpj + '\'' +
+            ", razaoSocial='" + razaoSocial + '\'' +
+            ", responsavelNome='" + responsavelNome + '\'' +
+            ", telefone='" + telefone + '\'' +
+            ", logradouro='" + logradouro + '\'' +
+            ", cidade='" + cidade + '\'' +
+            ", isPrestadorServico=" + isPrestadorServico +
+            ", site='" + site + '\'' +
+            ", urlInstagram='" + urlInstagram + '\'' +
+            ", urlFacebook='" + urlFacebook + '\'' +
+            '}';
+  }
 }

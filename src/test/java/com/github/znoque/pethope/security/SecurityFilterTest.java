@@ -52,7 +52,7 @@ public class SecurityFilterTest {
                 "11999999999",                // telefone
                 "São Paulo",                  // cidade
                 "Rua X, 123",                 // logradouro
-                username,                     // username (email)
+                username,                     // email (email)
                 "encrypted-password",         // senha
                 UsuarioTipo.USUARIO           // tipo
         );

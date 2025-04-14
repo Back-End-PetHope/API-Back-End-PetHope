@@ -5,7 +5,7 @@ import com.github.znoque.pethope.enums.UsuarioTipo;
 import java.util.List;
 
 public record GlobalResponseDto(String id,
-    String username,
+    String email,
     UsuarioTipo tipo,
     String cpfCnpj,
     String razaoSocial,

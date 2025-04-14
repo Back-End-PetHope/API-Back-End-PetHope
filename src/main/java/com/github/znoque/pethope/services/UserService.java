@@ -21,178 +21,252 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
 
-  private final UserRepository userRepository;
-  private final PasswordEncoder passwordEncoder;
-  private final AuthenticationManager authenticationManager;
-  private final TokenService tokenService;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
+    private final TokenService tokenService;
 
-  UserService(UserRepository userRepository, PasswordEncoder passwordEncoder,
-      AuthenticationManager authenticationManager, TokenService tokenService) {
-    this.userRepository = userRepository;
-    this.passwordEncoder = passwordEncoder;
-    this.authenticationManager = authenticationManager;
-    this.tokenService = tokenService;
-  }
+    UserService(UserRepository userRepository, PasswordEncoder passwordEncoder,
+                AuthenticationManager authenticationManager, TokenService tokenService) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.authenticationManager = authenticationManager;
+        this.tokenService = tokenService;
+    }
 
-  public List<GlobalResponseDto> listAllUser() {
-    List<User> lista = userRepository.findAll();
-    return lista.stream().map(this::toGlocalResponseDto).toList();
-  }
+    public List<GlobalResponseDto> listAllUser() {
+        List<User> lista = userRepository.findAll();
+        return lista.stream().map(this::toGlocalResponseDto).toList();
+    }
 
-  public Optional<User> listByIdUser(String id) {
-    return Optional.ofNullable(userRepository.findById(id))
-        .orElseThrow(() -> new EntityNotFoundException("Usuario não encontrado: " + id));
-  }
+    public UserResponseDto listByIdUser(String id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Usuario não encontrado: " + id));
+        if (!user.getTipo().equals(UsuarioTipo.USUARIO)) {
+            throw new EntityNotFoundException("ID invalido");
+        } else {
+            return new UserResponseDto(
+                    user.getId(),
+                    user.getUsername(),
+                    user.getTipo(),
+                    user.getCpfCnpj(),
+                    user.getResponsavelNome(),
+                    user.getTelefone(),
+                    user.getLogradouro(),
+                    user.getCidade(),
+                    user.getPrestadorServico(),
+                    user.getAuthorities().stream()
+                            .map(GrantedAuthority::getAuthority)
+                            .collect(Collectors.toList())
+            );
+        }
 
-  public String authenticate(AuthResquestDto data) {
+    }
 
-    var userNamePassword = new UsernamePasswordAuthenticationToken(data.username(), data.password());
-    var auth = this.authenticationManager.authenticate(userNamePassword);
-    String token = tokenService.generateToken((User) auth.getPrincipal());
-    User user = userRepository.findByUsername(data.username())
-        .orElseThrow(() -> new NoSuchElementException("Usuário não encontrado"));
-    return token;
+    public GlobalResponseDto listByIdClinica(String id) {
+        User clinica = userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Clinica não encontrada: " + id));
+        if (!clinica.getTipo().equals(UsuarioTipo.CLINICA)) {
+            throw new EntityNotFoundException("ID invalido");
+        } else {
+            return new GlobalResponseDto(
+                    clinica.getId(),
+                    clinica.getUsername(),
+                    clinica.getTipo(),
+                    clinica.getCpfCnpj(),
+                    clinica.getRazaoSocial(),
+                    clinica.getResponsavelNome(),
+                    clinica.getTelefone(),
+                    clinica.getLogradouro(),
+                    clinica.getCidade(),
+                    clinica.getSite(),
+                    clinica.getUrlInstagram(),
+                    clinica.getUrlFacebook(),
+                    clinica.getPrestadorServico(),
+                    clinica.getAuthorities().stream()
+                            .map(GrantedAuthority::getAuthority)
+                            .collect(Collectors.toList())
+            );
+        }
 
-  }
+    }
 
-  public User saveUser(UserRequestDto data) {
-    userRepository.findByUsername(data.email())
-        .ifPresent(existingUser -> {
-          throw new DataIntegrityViolationException("Usuário já criado com o e-mail: " + data.email());
-        });
-    User user = new User(
-        data.cpf(),
-        data.responsavelNome(),
-        data.telefone(),
-        data.cidade(),
-        data.endereco(),
-        data.email(),
-        passwordEncoder.encode(data.password()),
-        UsuarioTipo.USUARIO);
-    return userRepository.save(user);
-  }
+    public GlobalResponseDto listByIdOng(String id) {
+        User ong = userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Ong não encontrada: " + id));
+        if (!ong.getTipo().equals(UsuarioTipo.ONG)) {
+            throw new EntityNotFoundException("ID invalido");
+        } else {
+            return new GlobalResponseDto(
+                    ong.getId(),
+                    ong.getUsername(),
+                    ong.getTipo(),
+                    ong.getCpfCnpj(),
+                    ong.getRazaoSocial(),
+                    ong.getResponsavelNome(),
+                    ong.getTelefone(),
+                    ong.getLogradouro(),
+                    ong.getCidade(),
+                    ong.getSite(),
+                    ong.getUrlInstagram(),
+                    ong.getUrlFacebook(),
+                    ong.getPrestadorServico(),
+                    ong.getAuthorities().stream()
+                            .map(GrantedAuthority::getAuthority)
+                            .collect(Collectors.toList())
+            );
+        }
 
-  public User saveOng(OngRequestDto data) {
-    userRepository.findByUsername(data.email())
-        .ifPresent(existingUser -> {
-          throw new DataIntegrityViolationException("Ong já criado com o e-mail: " + data.email());
-        });
+    }
 
-    User user = new User(
-        data.cnpj(),
-        data.responsavelNome(),
-        data.telefone(),
-        data.cidade(),
-        data.endereco(),
-        data.razaoSocial(),
-        data.email(),
-        passwordEncoder.encode(data.senha()),
-        data.site(),
-        data.urlFacebook(),
-        data.urlInstagram(),
-        UsuarioTipo.ONG,
-        data.isPrestadorServico());
-    return userRepository.save(user);
-  }
+    public String authenticate(AuthResquestDto data) {
 
-  public User saveClinica(ClinicaRequestDto data) {
-    userRepository.findByUsername(data.email())
-        .ifPresent(existingUser -> {
-          throw new DataIntegrityViolationException("Clinica já criado com o e-mail: " + data.email());
-        });
-    User user = new User(
-        data.cnpj(),
-        data.responsavelNome(),
-        data.telefone(),
-        data.cidade(),
-        data.endereco(),
-        data.razaoSocial(),
-        data.email(),
-        passwordEncoder.encode(data.senha()),
-        data.site(),
-        data.urlFacebook(),
-        data.urlInstagram(),
-        UsuarioTipo.CLINICA,
-        data.isPrestadorServico());
-    return userRepository.save(user);
-  }
+        var userNamePassword = new UsernamePasswordAuthenticationToken(data.email(), data.password());
+        var auth = this.authenticationManager.authenticate(userNamePassword);
+        String token = tokenService.generateToken((User) auth.getPrincipal());
+        User user = userRepository.findByUsername(data.email())
+                .orElseThrow(() -> new NoSuchElementException("Usuário não encontrado"));
+        return token;
 
-  public UserResponseDto toUserResponseDto(User user) {
+    }
 
-    List<String> authorities = user.getAuthorities()
-        .stream().map(GrantedAuthority::getAuthority).toList();
-    return new UserResponseDto(
-        user.getId(),
-        user.getUsername(),
-        user.getTipo(),
-        user.getCpfCnpj(),
-        user.getResponsavelNome(),
-        user.getTelefone(),
-        user.getLogradouro(),
-        user.getCidade(),
-        user.getPrestadorServico(),
-        authorities);
-  }
+    public User saveUser(UserRequestDto data) {
+        userRepository.findByUsername(data.email())
+                .ifPresent(existingUser -> {
+                    throw new DataIntegrityViolationException("Usuário já criado com o e-mail: " + data.email());
+                });
+        User user = new User(
+                data.cpf(),
+                data.responsavelNome(),
+                data.telefone(),
+                data.cidade(),
+                data.endereco(),
+                data.email(),
+                passwordEncoder.encode(data.password()),
+                UsuarioTipo.USUARIO);
+        return userRepository.save(user);
+    }
 
-  public GlobalResponseDto toGlocalResponseDto(User user) {
+    public User saveOng(OngRequestDto data) {
+        userRepository.findByUsername(data.email())
+                .ifPresent(existingUser -> {
+                    throw new DataIntegrityViolationException("Ong já criado com o e-mail: " + data.email());
+                });
 
-    List<String> authorities = user.getAuthorities()
-        .stream().map(GrantedAuthority::getAuthority).toList();
-    return new GlobalResponseDto(
-        user.getId(),
-        user.getUsername(),
-        user.getTipo(),
-        user.getCpfCnpj(),
-        user.getRazaoSocial(),
-        user.getResponsavelNome(),
-        user.getTelefone(),
-        user.getLogradouro(),
-        user.getCidade(),
-        user.getSite(),
-        user.getUrlInstagram(),
-        user.getUrlFacebook(),
-        user.getPrestadorServico(),
-        authorities);
-  }
+        User user = new User(
+                data.cnpj(),
+                data.responsavelNome(),
+                data.telefone(),
+                data.cidade(),
+                data.endereco(),
+                data.razaoSocial(),
+                data.email(),
+                passwordEncoder.encode(data.senha()),
+                data.site(),
+                data.urlFacebook(),
+                data.urlInstagram(),
+                UsuarioTipo.ONG,
+                data.isPrestadorServico());
+        return userRepository.save(user);
+    }
 
-  public User updateUser(String id, UserUpdateRequestDto data) {
-    User user = userRepository.findById(id)
-        .orElseThrow(() -> new NoSuchElementException("Usuário não encontrado"));
+    public User saveClinica(ClinicaRequestDto data) {
+        userRepository.findByUsername(data.email())
+                .ifPresent(existingUser -> {
+                    throw new DataIntegrityViolationException("Clinica já criado com o e-mail: " + data.email());
+                });
+        User user = new User(
+                data.cnpj(),
+                data.responsavelNome(),
+                data.telefone(),
+                data.cidade(),
+                data.endereco(),
+                data.razaoSocial(),
+                data.email(),
+                passwordEncoder.encode(data.senha()),
+                data.site(),
+                data.urlFacebook(),
+                data.urlInstagram(),
+                UsuarioTipo.CLINICA,
+                data.isPrestadorServico());
+        return userRepository.save(user);
+    }
 
-    userRepository.findByUsername(data.username())
-        .ifPresent(existingUser -> {
-          throw new DataIntegrityViolationException("O nome de usuário já está em uso");
-        });
+    public UserResponseDto toUserResponseDto(User user) {
 
-    if (data.cpf() != null)
-      user.setCpfCnpj(data.cpf());
-    if (data.responsavelNome() != null)
-      user.setResponsavelNome(data.responsavelNome());
-    if (data.telefone() != null)
-      user.setTelefone(data.telefone());
-    if (data.cidade() != null)
-      user.setCidade(data.cidade());
-    if (data.endereco() != null)
-      user.setLogradouro(data.endereco());
+        List<String> authorities = user.getAuthorities()
+                .stream().map(GrantedAuthority::getAuthority).toList();
+        return new UserResponseDto(
+                user.getId(),
+                user.getUsername(),
+                user.getTipo(),
+                user.getCpfCnpj(),
+                user.getResponsavelNome(),
+                user.getTelefone(),
+                user.getLogradouro(),
+                user.getCidade(),
+                user.getPrestadorServico(),
+                authorities);
+    }
 
-    if (data.username() != null)
-      user.setUsername(data.username());
+    public GlobalResponseDto toGlocalResponseDto(User user) {
 
-    if (data.password() != null)
-      user.setSenha(passwordEncoder.encode(data.password()));
+        List<String> authorities = user.getAuthorities()
+                .stream().map(GrantedAuthority::getAuthority).toList();
+        return new GlobalResponseDto(
+                user.getId(),
+                user.getUsername(),
+                user.getTipo(),
+                user.getCpfCnpj(),
+                user.getRazaoSocial(),
+                user.getResponsavelNome(),
+                user.getTelefone(),
+                user.getLogradouro(),
+                user.getCidade(),
+                user.getSite(),
+                user.getUrlInstagram(),
+                user.getUrlFacebook(),
+                user.getPrestadorServico(),
+                authorities);
+    }
 
-    return userRepository.save(user);
-  }
+    public User updateUser(String id, UserUpdateRequestDto data) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Usuário não encontrado"));
 
-  public void deleteUser(String id) {
-    User user = userRepository.findById(id)
-        .orElseThrow(() -> new NoSuchElementException("Usuário não encontrado"));
-    userRepository.delete(user);
-  }
+        userRepository.findByUsername(data.email())
+                .ifPresent(existingUser -> {
+                    throw new DataIntegrityViolationException("O nome de usuário já está em uso");
+                });
+
+        if (data.cpf() != null)
+            user.setCpfCnpj(data.cpf());
+        if (data.responsavelNome() != null)
+            user.setResponsavelNome(data.responsavelNome());
+        if (data.telefone() != null)
+            user.setTelefone(data.telefone());
+        if (data.cidade() != null)
+            user.setCidade(data.cidade());
+        if (data.endereco() != null)
+            user.setLogradouro(data.endereco());
+        if (data.email() != null)
+            user.setUsername(data.email());
+        if (data.password() != null)
+            user.setSenha(passwordEncoder.encode(data.password()));
+
+        System.out.println(user.toString());
+        return userRepository.save(user);
+    }
+
+    public void deleteUser(String id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Usuário não encontrado"));
+        userRepository.delete(user);
+    }
 
 }

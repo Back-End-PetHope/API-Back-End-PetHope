@@ -13,8 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.util.Map;
 
-@RestController
-@RequestMapping("/oauth")
+
 @Tag(name = UserApi.TAG_AUTH)
 public class OAuthController {
 

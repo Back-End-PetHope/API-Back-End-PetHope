@@ -31,7 +31,7 @@ public class SecurityConfig {
             "/users/clinica",
             "/users/create",
             "/users/ong",
-            "/users/{id}")
+            "/users/{id}", "/users/ong/{id}", "/users/clinica/{id}")
             .permitAll()
             .anyRequest().authenticated())
         .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)

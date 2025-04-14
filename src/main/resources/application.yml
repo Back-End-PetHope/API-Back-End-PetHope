@@ -10,7 +10,7 @@ spring:
     show-sql: false
     database-platform: org.hibernate.dialect.MySQLDialect
     hibernate:
-      ddl-auto: create-drop
+      #ddl-auto: create-drop
       format_sql: true  # Formata as queries para melhor legibilidade
       use_sql_comments: true  # Adiciona comentários explicativos no SQL gerado
   security:

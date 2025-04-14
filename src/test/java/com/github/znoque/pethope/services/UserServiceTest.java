@@ -69,7 +69,7 @@ class UserServiceTest {
     @Test
     @DisplayName("Deve lançar exceção quando usuário não for encontrado")
     void shouldThrowExceptionWhenUserNotFound() {
-        when(userRepository.findByUsername(authResquestDto.username()))
+        when(userRepository.findByUsername(authResquestDto.email()))
                 .thenReturn(Optional.empty());
         when(authenticationManager.authenticate(any()))
                 .thenThrow(new RuntimeException("Usuário não encontrado"));
@@ -82,7 +82,7 @@ class UserServiceTest {
     @Test
     @DisplayName("Deve lançar exceção quando a senha for inválida")
     void shouldThrowExceptionWhenPasswordIsInvalid() {
-        when(userRepository.findByUsername(authResquestDto.username()))
+        when(userRepository.findByUsername(authResquestDto.email()))
                 .thenReturn(Optional.of(user));
         when(authenticationManager.authenticate(any()))
                 .thenThrow(new BadCredentialsException("Senha inválida"));

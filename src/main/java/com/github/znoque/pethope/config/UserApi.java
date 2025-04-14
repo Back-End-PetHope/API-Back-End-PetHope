@@ -6,14 +6,14 @@ import com.github.znoque.pethope.dto.clinica.ClinicaRequestDto;
 import com.github.znoque.pethope.dto.ong.OngRequestDto;
 import com.github.znoque.pethope.dto.user.AuthResquestDto;
 import com.github.znoque.pethope.dto.user.UserRequestDto;
+import com.github.znoque.pethope.dto.user.UserResponseDto;
 import com.github.znoque.pethope.model.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
+
 
 import java.util.List;
 
@@ -39,14 +39,22 @@ public interface UserApi {
   public static final String GET_DESCRICAO_USER = "Busca todos os Usuários na aplicação";
   public static final String GET_SUMARIO_USERBYID = "Busca pelo Id";
   public static final String GET_DESCRICAO_USERBYID = "Busca os Usuários pelo Id Unico na aplicação";
+  public static final String SUMARIO_UPDATE = "Atualizar informações do usuário";
+  public static final String DESCRICAO_UPDATE = "Atualiza as informações do usuário na aplicação.";
+  public static final String SUMARIO_DELETE = "Deletar usuário";
+  public static final String DESCRICAO_DELETE = "Remove um usuário existente com base no ID fornecido.";
 
   // Clinica
   public static final String POST_SUMARIO_CLINICA = "Criar Clinica";
   public static final String POST_DESCRICAO_CLINICA = "Cria um novo usuário tipo Clinica na aplicação.";
+  public static final String GET_SUMARIO_CLINICABYID = "Busca pelo Id";
+  public static final String GET_DESCRICAO_CLINICABYID = "Busca os Usuários Tipo Clinica pelo Id Unico na aplicação";
 
   // Ong
   public static final String POST_SUMARIO_ONG = "Criar Ong";
   public static final String POST_DESCRICAO_ONG = "Cria um novo usuário tipo Ong na aplicação.";
+  public static final String GET_SUMARIO_ONGBYID = "Busca pelo Id";
+  public static final String GET_DESCRICAO_ONGBYID = "Busca os Usuários tipo Ong pelo Id Unico na aplicação";
 
   // Auth
   public static final String TAG_AUTH = "Gerenciamento de autenticação de usuários";
@@ -73,7 +81,23 @@ public interface UserApi {
       @ApiResponse(responseCode = "404", description = UserApi.RESPONSE_404),
       @ApiResponse(responseCode = "500", description = UserApi.RESPONSE_500)
   })
-  public ResponseEntity<GlobalPatternResponseDto<User>> findByIdUser(String id);
+  public ResponseEntity<GlobalPatternResponseDto<UserResponseDto>> findByIdUser(String id);
+
+  @Operation(summary = UserApi.GET_SUMARIO_ONGBYID, description = UserApi.GET_DESCRICAO_ONGBYID)
+  @ApiResponses({
+          @ApiResponse(responseCode = "200", description = UserApi.RESPONSE_200),
+          @ApiResponse(responseCode = "404", description = UserApi.RESPONSE_404),
+          @ApiResponse(responseCode = "500", description = UserApi.RESPONSE_500)
+  })
+  public ResponseEntity<GlobalPatternResponseDto<GlobalResponseDto>> findByIdOng(String id);
+
+  @Operation(summary = UserApi.GET_SUMARIO_CLINICABYID, description = UserApi.GET_DESCRICAO_CLINICABYID)
+  @ApiResponses({
+          @ApiResponse(responseCode = "200", description = UserApi.RESPONSE_200),
+          @ApiResponse(responseCode = "404", description = UserApi.RESPONSE_404),
+          @ApiResponse(responseCode = "500", description = UserApi.RESPONSE_500)
+  })
+  public ResponseEntity<GlobalPatternResponseDto<GlobalResponseDto>> findByIdClinica(String id);
 
   @Operation(summary = UserApi.POST_SUMARIO_USER, description = UserApi.POST_DESCRICAO_USER)
   @ApiResponses({

@@ -4,14 +4,15 @@ import com.github.znoque.pethope.enums.UsuarioTipo;
 
 import java.util.List;
 
-public record UserResponseDto(String id,
-    String username,
-    UsuarioTipo tipo,
-    String cpfCnpj,
-    String responsavelNome,
-    String telefone,
-    String logradouro,
-    String cidade,
-    boolean prestadorServico,
-    List<String> authorities) {
+public record UserResponseDto(
+        String id,
+        String email,
+        UsuarioTipo tipo,
+        String cpfCnpj,
+        String responsavelNome,
+        String telefone,
+        String logradouro,
+        String cidade,
+        boolean prestadorServico,
+        List<String> authorities) {
 }
