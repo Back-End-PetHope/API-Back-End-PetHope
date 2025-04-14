@@ -236,16 +236,43 @@ public class UserService {
     }
 
     public User updateUser(String id, UserUpdateRequestDto data) {
+      User user = userRepository.findById(id)
+          .orElseThrow(() -> new NoSuchElementException("Usuário não encontrado"));
+
+      userRepository.findByUsername(data.email())
+          .ifPresent(existingUser -> {
+            throw new DataIntegrityViolationException("O nome de usuário já está em uso");
+          });
+
+      if (data.cpf() != null)
+        user.setCpfCnpj(data.cpf());
+      if (data.responsavelNome() != null)
+        user.setResponsavelNome(data.responsavelNome());
+      if (data.telefone() != null)
+        user.setTelefone(data.telefone());
+      if (data.cidade() != null)
+        user.setCidade(data.cidade());
+      if (data.endereco() != null)
+        user.setLogradouro(data.endereco());
+      if (data.email() != null)
+        user.setUsername(data.email());
+      if (data.password() != null)
+        user.setSenha(passwordEncoder.encode(data.password()));
+
+      System.out.println(user.toString());
+      return userRepository.save(user);
+    }
+    public User updateClinica(String id, ClinicaRequestDto data) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Usuário não encontrado"));
+                .orElseThrow(() -> new NoSuchElementException("Clinica não encontrada"));
 
         userRepository.findByUsername(data.email())
                 .ifPresent(existingUser -> {
                     throw new DataIntegrityViolationException("O nome de usuário já está em uso");
                 });
 
-        if (data.cpf() != null)
-            user.setCpfCnpj(data.cpf());
+        if (data.cnpj() != null)
+            user.setCpfCnpj(data.cnpj());
         if (data.responsavelNome() != null)
             user.setResponsavelNome(data.responsavelNome());
         if (data.telefone() != null)
@@ -254,18 +281,65 @@ public class UserService {
             user.setCidade(data.cidade());
         if (data.endereco() != null)
             user.setLogradouro(data.endereco());
-        if (data.email() != null)
-            user.setUsername(data.email());
-        if (data.password() != null)
-            user.setSenha(passwordEncoder.encode(data.password()));
+        if (data.razaoSocial() != null)
+            user.setRazaoSocial(data.razaoSocial());
+        if (data.site() != null)
+            user.setSite(data.site());
+        if (data.urlFacebook() != null)
+            user.setUrlFacebook(data.urlFacebook());
+        if (data.urlInstagram() != null)
+            user.setUrlInstagram(data.urlInstagram());
+        if (data.senha() != null)
+            user.setSenha(passwordEncoder.encode(data.senha()));
 
-        System.out.println(user.toString());
+        return userRepository.save(user);
+    }
+    public User updateOng(String id, OngRequestDto data) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Ong não encontrada"));
+
+        userRepository.findByUsername(data.email())
+                .ifPresent(existingUser -> {
+                    throw new DataIntegrityViolationException("O nome de usuário já está em uso");
+                });
+
+        if (data.cnpj() != null)
+            user.setCpfCnpj(data.cnpj());
+        if (data.responsavelNome() != null)
+            user.setResponsavelNome(data.responsavelNome());
+        if (data.telefone() != null)
+            user.setTelefone(data.telefone());
+        if (data.cidade() != null)
+            user.setCidade(data.cidade());
+        if (data.endereco() != null)
+            user.setLogradouro(data.endereco());
+        if (data.razaoSocial() != null)
+            user.setRazaoSocial(data.razaoSocial());
+        if (data.site() != null)
+            user.setSite(data.site());
+        if (data.urlFacebook() != null)
+            user.setUrlFacebook(data.urlFacebook());
+        if (data.urlInstagram() != null)
+            user.setUrlInstagram(data.urlInstagram());
+        if (data.senha() != null)
+            user.setSenha(passwordEncoder.encode(data.senha()));
+
         return userRepository.save(user);
     }
 
     public void deleteUser(String id) {
+      User user = userRepository.findById(id)
+          .orElseThrow(() -> new NoSuchElementException("Usuário não encontrado"));
+      userRepository.delete(user);
+    }
+    public void deleteClinica(String id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Usuário não encontrado"));
+                .orElseThrow(() -> new NoSuchElementException("Clinica não encontrada"));
+        userRepository.delete(user);
+    }
+    public void deleteOng(String id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Ong não encontrada"));
         userRepository.delete(user);
     }
 

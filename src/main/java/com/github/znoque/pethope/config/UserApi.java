@@ -49,7 +49,10 @@ public interface UserApi {
   public static final String POST_DESCRICAO_CLINICA = "Cria um novo usuário tipo Clinica na aplicação.";
   public static final String GET_SUMARIO_CLINICABYID = "Busca pelo Id";
   public static final String GET_DESCRICAO_CLINICABYID = "Busca os Usuários Tipo Clinica pelo Id Unico na aplicação";
-
+  public static final String SUMARIO_UPDATE_CLINICA = "Atualizar informações da clínica";
+  public static final String DESCRICAO_UPDATE_CLINICA = "Atualiza as informações da clínica na aplicação.";
+  public static final String SUMARIO_DELETE_CLINICA = "Deletar clínica";
+  public static final String DESCRICAO_DELETE_CLINICA = "Remove uma clínica existente com base no ID fornecido.";
   // Ong
   public static final String POST_SUMARIO_ONG = "Criar Ong";
   public static final String POST_DESCRICAO_ONG = "Cria um novo usuário tipo Ong na aplicação.";

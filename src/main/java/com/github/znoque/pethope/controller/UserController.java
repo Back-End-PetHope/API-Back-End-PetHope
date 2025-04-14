@@ -140,6 +140,46 @@ public class UserController implements UserApi {
               "Erro de integridade de dados: " + e.getMessage()));
     }
   }
+  @PatchMapping("/clinica/{id}")
+  public ResponseEntity<?> updateClinica(@PathVariable String id, @RequestBody @Valid ClinicaRequestDto data) {
+    try {
+      User updatedUser = userService.updateClinica(id, data);
+      return ResponseEntity
+          .status(HttpStatus.OK)
+          .body(new GlobalPatternResponseDto<>(
+              userService.toGlocalResponseDto(updatedUser)));
+    } catch (NoSuchElementException e) {
+      return ResponseEntity
+          .status(HttpStatus.NOT_FOUND)
+          .body(new GlobalPatternResponseDto<>(
+              "Clinica não encontrada"));
+    } catch (DataIntegrityViolationException e) {
+      return ResponseEntity
+          .status(HttpStatus.BAD_REQUEST)
+          .body(new GlobalPatternResponseDto<>(
+              "Erro de integridade de dados: " + e.getMessage()));
+    }
+  }
+  @PatchMapping("/ong/{id}")
+  public ResponseEntity<?> updateOng(@PathVariable String id, @RequestBody @Valid OngRequestDto data) {
+    try {
+      User updatedUser = userService.updateOng(id, data);
+      return ResponseEntity
+          .status(HttpStatus.OK)
+          .body(new GlobalPatternResponseDto<>(
+              userService.toGlocalResponseDto(updatedUser)));
+    } catch (NoSuchElementException e) {
+      return ResponseEntity
+          .status(HttpStatus.NOT_FOUND)
+          .body(new GlobalPatternResponseDto<>(
+              "Ong não encontrada"));
+    } catch (DataIntegrityViolationException e) {
+      return ResponseEntity
+          .status(HttpStatus.BAD_REQUEST)
+          .body(new GlobalPatternResponseDto<>(
+              "Erro de integridade de dados: " + e.getMessage()));
+    }
+  }
 
   @DeleteMapping("/{id}")
 
@@ -155,6 +195,37 @@ public class UserController implements UserApi {
           .status(HttpStatus.NOT_FOUND)
           .body(new GlobalPatternResponseDto<>(
               "Usuário não encontrado"));
+    }
+  }
+
+  @DeleteMapping("/clinica/{id}")
+  public ResponseEntity<?> deleteClinica(@PathVariable String id) {
+    try {
+      userService.deleteClinica(id);
+      return ResponseEntity
+          .status(HttpStatus.NO_CONTENT)
+          .body(new GlobalPatternResponseDto<>(
+              "Clinica deletada com sucesso"));
+    } catch (NoSuchElementException e) {
+      return ResponseEntity
+          .status(HttpStatus.NOT_FOUND)
+          .body(new GlobalPatternResponseDto<>(
+              "Clinica não encontrada"));
+    }
+  }
+  @DeleteMapping("/ong/{id}")
+  public ResponseEntity<?> deleteOng(@PathVariable String id) {
+    try {
+      userService.deleteOng(id);
+      return ResponseEntity
+          .status(HttpStatus.NO_CONTENT)
+          .body(new GlobalPatternResponseDto<>(
+              "Ong deletada com sucesso"));
+    } catch (NoSuchElementException e) {
+      return ResponseEntity
+          .status(HttpStatus.NOT_FOUND)
+          .body(new GlobalPatternResponseDto<>(
+              "Ong não encontrada"));
     }
   }
 
