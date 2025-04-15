@@ -1,50 +1,281 @@
 package com.github.znoque.pethope.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.github.znoque.pethope.enums.UsuarioTipo;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
 @Table(name = "usuario")
-public class User {
+public class User implements UserDetails {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "usuario_id", updatable = false, nullable = false)
-    private final UUID id;
+  @Id
+  @Column(name = "usuario_id", updatable = false, nullable = false)
+  private String id;
 
-    @Email
-    @NotBlank
-    @Size(min = 11, max = 155)
-    @Column(name = "usuario_email", length = 155, nullable = false, unique = true)
-    private final String email;
+  @Email
+  @NotBlank
+  @NotNull
+  @Size(min = 11, max = 155)
+  @Column(name = "usuario_username", length = 155, nullable = false, unique = true)
+  private String username;
 
-    @NotBlank
-    @Size(min = 6, max = 255)
-    @Column(name = "usuario_password", nullable = false)
-    private final String password;
+  @NotBlank
+  @NotNull
+  @Size(min = 6, max = 255)
+  @Column(name = "usuario_senha", nullable = false)
+  private String senha;
 
-    public User(String email, String userPassword) {
-        this.id = UUID.randomUUID();
-        this.email = email;
-        this.password = userPassword;
-    }
+  @NotNull
+  @Column(name = "usuario_tipo", nullable = false)
+  @Enumerated(EnumType.STRING)
+  private UsuarioTipo tipo;
 
-    public String getEmail() {
-        return email;
-    }
+  @NotBlank
+  @NotNull
+  @Size(max = 14)
+  @Column(name = "usuario_cpf_cnpj", nullable = false, unique = true)
+  private String cpfCnpj;
 
-    public String getPassword() {
-        return password;
-    }
+  @Column(name = "usuario_razao_social", unique = true)
+  private String razaoSocial;
 
-    @Override
-    public String toString() {
-        return "Auth{" +
-                "id=" + id +
-                ", email='" + email + '\'' +
-                '}';
-    }
+  @NotBlank
+  @NotNull
+  @Column(name = "usuario_responsavel_nome", nullable = false)
+  private String responsavelNome;
+
+  @Size(max = 14)
+  @Column(name = "usuario_telefone", nullable = false)
+  private String telefone;
+
+  @Column(name = "usuario_logradouro")
+  private String logradouro;
+
+  @Size(max = 150)
+  @Column(name = "usuario_cidade", nullable = false)
+  private String cidade;
+
+  @Column(name = "usuario_is_prestador_servico", nullable = false)
+  private Boolean isPrestadorServico;
+
+  @Column(name = "usuario_site")
+  private String site;
+
+  @Column(name = "usuario_url_instagram")
+  private String urlInstagram;
+
+  @Column(name = "usuario_url_facebook")
+  private String urlFacebook;
+
+  public User(String cpf, String responsavelNome, String telefone,
+      String cidade, String logradouro,
+      String username, String senha, UsuarioTipo tipo) {
+    this.id = String.valueOf(UUID.randomUUID());
+    this.cpfCnpj = cpf;
+    this.responsavelNome = responsavelNome;
+    this.telefone = telefone;
+    this.cidade = cidade;
+    this.logradouro = logradouro;
+    this.username = username;
+    this.senha = senha;
+    this.tipo = tipo;
+    this.isPrestadorServico = this.isPrestadorServico != null ? isPrestadorServico : false;
+  }
+
+  public User(String cnpj, String responsavelNome,
+      String telefone, String cidade, String logradouro, String razaoSocial,
+      String username, String senha, String site, String urlInstagram, String urlFacebook,
+      UsuarioTipo tipo, Boolean isPrestadorServico) {
+
+    this.id = String.valueOf(UUID.randomUUID());
+    this.cpfCnpj = cnpj;
+    this.responsavelNome = responsavelNome;
+    this.telefone = telefone;
+    this.cidade = cidade;
+    this.logradouro = logradouro;
+    this.razaoSocial = razaoSocial;
+    this.username = username;
+    this.senha = senha;
+    this.site = site;
+    this.urlInstagram = urlInstagram;
+    this.urlFacebook = urlFacebook;
+    this.tipo = tipo;
+    this.isPrestadorServico = this.isPrestadorServico != null ? isPrestadorServico : false;
+  }
+
+  @Deprecated
+  public User() {
+
+  }
+
+  public String getId() {
+    return id;
+  }
+
+  public UsuarioTipo getTipo() {
+    return tipo;
+  }
+
+  public String getCpfCnpj() {
+    return cpfCnpj;
+  }
+
+  public String getRazaoSocial() {
+    return razaoSocial;
+  }
+
+  public String getResponsavelNome() {
+    return responsavelNome;
+  }
+
+  public String getTelefone() {
+    return telefone;
+  }
+
+  public String getLogradouro() {
+    return logradouro;
+  }
+
+  public String getCidade() {
+    return cidade;
+  }
+
+  public Boolean getPrestadorServico() {
+    return isPrestadorServico;
+  }
+
+  public String getSite() {
+    return site;
+  }
+
+  public String getUrlInstagram() {
+    return urlInstagram;
+  }
+
+  public String getUrlFacebook() {
+    return urlFacebook;
+  }
+
+  @Override
+  public Collection<? extends GrantedAuthority> getAuthorities() {
+    if (this.tipo == UsuarioTipo.USUARIO)
+      return List.of(new SimpleGrantedAuthority("USER_COMUM"));
+    if (this.tipo == UsuarioTipo.ONG)
+      return List.of(new SimpleGrantedAuthority("USER_ONG"));
+    else
+      return List.of(new SimpleGrantedAuthority("USER_CLINICA"));
+  }
+
+  @Override
+  public String getPassword() {
+    return this.senha;
+  }
+
+  @Override
+  public String getUsername() {
+    return this.username;
+  }
+
+  @Override
+  public boolean isAccountNonExpired() {
+    return UserDetails.super.isAccountNonExpired();
+  }
+
+  @Override
+  public boolean isAccountNonLocked() {
+    return UserDetails.super.isAccountNonLocked();
+  }
+
+  @Override
+  public boolean isCredentialsNonExpired() {
+    return UserDetails.super.isCredentialsNonExpired();
+  }
+
+  @Override
+  public boolean isEnabled() {
+    return UserDetails.super.isEnabled();
+  }
+
+  public void setUsername(String username) {
+    this.username = username;
+  }
+
+  public void setSenha(String senha) {
+    this.senha = senha;
+  }
+
+  public void setTipo(UsuarioTipo tipo) {
+    this.tipo = tipo;
+  }
+
+  public void setCpfCnpj(String cpfCnpj) {
+    this.cpfCnpj = cpfCnpj;
+  }
+
+  public void setRazaoSocial(String razaoSocial) {
+    this.razaoSocial = razaoSocial;
+  }
+
+  public void setResponsavelNome(String responsavelNome) {
+    this.responsavelNome = responsavelNome;
+  }
+
+  public void setTelefone(String telefone) {
+    this.telefone = telefone;
+  }
+
+  public void setLogradouro(String logradouro) {
+    this.logradouro = logradouro;
+  }
+
+  public void setCidade(String cidade) {
+    this.cidade = cidade;
+  }
+
+  public void setPrestadorServico(Boolean isPrestadorServico) {
+    this.isPrestadorServico = isPrestadorServico;
+  }
+
+  public void setSite(String site) {
+    this.site = site;
+  }
+
+  public void setUrlInstagram(String urlInstagram) {
+    this.urlInstagram = urlInstagram;
+  }
+
+  public void setUrlFacebook(String urlFacebook) {
+    this.urlFacebook = urlFacebook;
+  }
+
+  @Override
+  public String toString() {
+    return "User{" +
+            "id='" + id + '\'' +
+            ", email='" + username + '\'' +
+            ", senha='" + senha + '\'' +
+            ", tipo=" + tipo +
+            ", cpfCnpj='" + cpfCnpj + '\'' +
+            ", razaoSocial='" + razaoSocial + '\'' +
+            ", responsavelNome='" + responsavelNome + '\'' +
+            ", telefone='" + telefone + '\'' +
+            ", logradouro='" + logradouro + '\'' +
+            ", cidade='" + cidade + '\'' +
+            ", isPrestadorServico=" + isPrestadorServico +
+            ", site='" + site + '\'' +
+            ", urlInstagram='" + urlInstagram + '\'' +
+            ", urlFacebook='" + urlFacebook + '\'' +
+            '}';
+  }
 }
