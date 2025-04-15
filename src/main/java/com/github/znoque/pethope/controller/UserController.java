@@ -1,63 +1,169 @@
 package com.github.znoque.pethope.controller;
 
-
-import com.github.znoque.pethope.config.SwaggerDocumentationConfig;
-import com.github.znoque.pethope.dto.UserRequestDto;
-import com.github.znoque.pethope.dto.UserResponseDto;
+import com.github.znoque.pethope.config.UserApi;
+import com.github.znoque.pethope.dto.GlobalResponseDto;
+import com.github.znoque.pethope.dto.ResponseDto;
+import com.github.znoque.pethope.dto.clinica.ClinicaRequestDto;
+import com.github.znoque.pethope.dto.ong.OngRequestDto;
+import com.github.znoque.pethope.dto.user.*;
 import com.github.znoque.pethope.model.User;
 import com.github.znoque.pethope.services.UserService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-@RestController
+import java.util.List;
+import java.util.Optional;
+
 @RequestMapping("/users")
-@Tag(name = SwaggerDocumentationConfig.TAG_USER)
-public class UserController {
+@RestController
+public class UserController implements UserApi {
 
-    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
     private final UserService userService;
 
     public UserController(UserService userService) {
         this.userService = userService;
     }
 
-    @PostMapping("/create")
-    @Operation(
-            summary = SwaggerDocumentationConfig.SUMARIO_USER,
-            description = SwaggerDocumentationConfig.DESCRICAO_USER
-    )
-    @ApiResponses({
-            @ApiResponse(responseCode = "201", description = SwaggerDocumentationConfig.RESPONSE_201),
-            @ApiResponse(responseCode = "422", description = SwaggerDocumentationConfig.RESPONSE_422),
-            @ApiResponse(responseCode = "500", description = SwaggerDocumentationConfig.RESPONSE_500)
-    })
+    @GetMapping
+    @Override
+    public ResponseEntity<ResponseDto<List<GlobalResponseDto>>> findAllUser() {
+        return Optional.ofNullable(userService.listAllUser())
+                .filter(list -> !list.isEmpty())
+                .map(listaUser -> ResponseEntity.status(HttpStatus.OK)
+                        .body(new ResponseDto<>(
+                                listaUser)))
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(new ResponseDto<>(
+                                null)));
+    }
+
+    @GetMapping("/{id}")
+    @Override
+    public ResponseEntity<ResponseDto<UserResponseDto>> findByIdUser(@PathVariable @Valid String id) {
+        return Optional.ofNullable(userService.listByIdUser(id))
+                .map(result -> ResponseEntity.status(HttpStatus.OK)
+                        .body(new ResponseDto<>(result)))
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(new ResponseDto<>(null)));
+    }
+
+    @GetMapping("/clinica/{id}")
+    @Override
+    public ResponseEntity<ResponseDto<GlobalResponseDto>> findByIdClinica(@PathVariable @Valid String id) {
+        return Optional.ofNullable(userService.listByIdClinica(id))
+                .map(result -> ResponseEntity.status(HttpStatus.OK)
+                        .body(new ResponseDto<>(result)))
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(new ResponseDto<>(null)));
+    }
+
+    @GetMapping("/ong/{id}")
+    @Override
+    public ResponseEntity<ResponseDto<GlobalResponseDto>> findByIdOng(@PathVariable @Valid String id) {
+        return Optional.ofNullable(userService.listByIdOng(id))
+                .map(result -> ResponseEntity.status(HttpStatus.OK)
+                        .body(new ResponseDto<>(result)))
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(new ResponseDto<>(null)));
+    }
+
+    @PostMapping()
+    @Override
     public ResponseEntity<?> createUser(@RequestBody @Valid UserRequestDto data) {
         User user = userService.saveUser(data);
-        UserResponseDto userResponseDto = new UserResponseDto(user.getEmail());
-        return ResponseEntity.status(HttpStatus.CREATED).body(userResponseDto);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(new ResponseDto<>(
+                        userService.toUserResponseDto(user)));
+    }
+
+    @PostMapping("/clinica")
+    @Override
+    public ResponseEntity<?> createClinica(@RequestBody @Valid ClinicaRequestDto data) {
+        User user = userService.saveClinica(data);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(new ResponseDto<>(
+                        userService.toGlobalResponseDto(user)));
+    }
+
+    @PostMapping("/ong")
+    @Override
+    public ResponseEntity<?> createOng(@RequestBody @Valid OngRequestDto data) {
+        User user = userService.saveOng(data);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(new ResponseDto<>(
+                        userService.toGlobalResponseDto(user)));
     }
 
     @PostMapping("/login")
-    @Operation(summary = SwaggerDocumentationConfig.SUMARIO_LOGIN, description = SwaggerDocumentationConfig.DESCRICAO_LOGIN)
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = SwaggerDocumentationConfig.RESPONSE_200),
-            @ApiResponse(responseCode = "404", description = SwaggerDocumentationConfig.RESPONSE_404),
-            @ApiResponse(responseCode = "500", description = SwaggerDocumentationConfig.RESPONSE_500)
-    })
-    public ResponseEntity<?> loginUser(@RequestBody @Valid UserRequestDto data) {
-        userService.authenticate(data);
-        return ResponseEntity.status(HttpStatus.OK).build();
+    @Override
+    public ResponseEntity<?> loginUser(@RequestBody @Valid AuthResquestDto data) {
+        String token = userService.authenticate(data);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(new ResponseDto<>(
+                        new AuthResponseDto(token)));
+    }
+
+    @PatchMapping("/{id}")
+
+    public ResponseEntity<?> updateUser(@PathVariable String id, @RequestBody @Valid UserUpdateRequestDto data) {
+        User updatedUser = userService.updateUser(id, data);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(new ResponseDto<>(
+                        userService.toGlobalResponseDto(updatedUser)));
+    }
+
+    @PatchMapping("/clinica/{id}")
+    public ResponseEntity<?> updateClinica(@PathVariable String id, @RequestBody @Valid ClinicaRequestDto data) {
+        User updatedUser = userService.updateClinica(id, data);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(new ResponseDto<>(
+                        userService.toGlobalResponseDto(updatedUser)));
+    }
+
+    @PatchMapping("/ong/{id}")
+    public ResponseEntity<?> updateOng(@PathVariable String id, @RequestBody @Valid OngRequestDto data) {
+        User updatedUser = userService.updateOng(id, data);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(new ResponseDto<>(
+                        userService.toGlobalResponseDto(updatedUser)));
+    }
+
+    @DeleteMapping("/{id}")
+
+    public ResponseEntity<?> deleteUser(@PathVariable String id) {
+        userService.deleteUser(id);
+        return ResponseEntity
+                .status(HttpStatus.NO_CONTENT)
+                .body(new ResponseDto<>(
+                        "Usuário deletado com sucesso"));
+    }
+
+    @DeleteMapping("/clinica/{id}")
+    public ResponseEntity<?> deleteClinica(@PathVariable String id) {
+        userService.deleteClinica(id);
+        return ResponseEntity
+                .status(HttpStatus.NO_CONTENT)
+                .body(new ResponseDto<>(
+                        "Clinica deletada com sucesso"));
+
+    }
+
+    @DeleteMapping("/ong/{id}")
+    public ResponseEntity<?> deleteOng(@PathVariable String id) {
+        userService.deleteOng(id);
+        return ResponseEntity
+                .status(HttpStatus.NO_CONTENT)
+                .body(new ResponseDto<>(
+                        "Ong deletada com sucesso"));
     }
 
 }

@@ -7,10 +7,8 @@ spring:
     password: ${DB_PASSWORD:pethope@123}
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
-    show-sql: true
+    show-sql: false
     database-platform: org.hibernate.dialect.MySQLDialect
-    hibernate:
-      ddl-auto:
   security:
     oauth2:
       client:
@@ -26,3 +24,14 @@ server:
 error:
   include-stacktrace: never
   include-message: never
+
+logging:
+  level:
+    org.hibernate.SQL: INFO
+    org.springframework.web:
+    org.springframework.security: INFO
+    org.hibernate.orm.jdbc.bind: TRACE
+api:
+  security:
+    token:
+      secret: ${JWT_SECRET:my-secret-key}
