@@ -1,18 +1,17 @@
 package com.github.znoque.pethope.controller;
 
+import com.github.znoque.pethope.Enum.Sexo;
+import com.github.znoque.pethope.Enum.Temperamento;
 import com.github.znoque.pethope.dto.PetDto;
-import com.github.znoque.pethope.model.pet.Especie;
+import com.github.znoque.pethope.Enum.Especie;
 import com.github.znoque.pethope.model.pet.Pet;
-import com.github.znoque.pethope.model.pet.Raca;
+import com.github.znoque.pethope.Enum.Raca;
 import com.github.znoque.pethope.services.PetService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -78,13 +77,38 @@ public class PetController {
         }
     }
 
+    @GetMapping("/temperamentos")
+    public ResponseEntity<List<Map<String, String>>> getTemperamentos() {
+        List<Map<String, String>> temperamentos = Arrays.stream(Temperamento.values())
+                .map(t -> Map.of("nome", t.getDisplayName(), "value", t.name()))
+                .toList();
 
- /*   @GetMapping("/v1/getByRaca/{raca}")
-    public List<Pet> getPetByRaca(@PathVariable Raca raca) {
-        Pet pet = petService.findByRaca(raca);
+        return ResponseEntity.ok(temperamentos);
+    }
 
+    @GetMapping("/sexos")
+    public ResponseEntity<List<Map<String, String>>> getSexos() {
+        List<Map<String, String>> sexos = Arrays.stream(Sexo.values())
+                .map(s -> Map.of("nome", s.getDisplayName(), "value", s.name()))
+                .toList();
 
-    } */
+        return ResponseEntity.ok(sexos);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<Pet>> getPetByFilters(
+            @RequestParam(required = false) String especie,
+            @RequestParam(required = false) String raca,
+            @RequestParam(required = false) Integer idadeMin,
+            @RequestParam(required = false) Integer idadeMax
+    ) {
+        if (idadeMin != null && idadeMax != null && idadeMin > idadeMax) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        List<Pet> pets = petService.findByFilters(especie, raca, idadeMin, idadeMax);
+        return ResponseEntity.ok(pets);
+    }
 
     @PatchMapping("/{id}")
     public ResponseEntity<Pet> patchPet(@PathVariable int id) {
