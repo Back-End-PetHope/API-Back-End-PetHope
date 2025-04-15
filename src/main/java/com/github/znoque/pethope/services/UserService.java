@@ -41,14 +41,14 @@ public class UserService {
 
     public List<GlobalResponseDto> listAllUser() {
         List<User> lista = userRepository.findAll();
-        return lista.stream().map(this::toGlocalResponseDto).toList();
+        return lista.stream().map(this::toGlobalResponseDto).toList();
     }
 
     public UserResponseDto listByIdUser(String id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Usuario não encontrado: " + id));
         if (!user.getTipo().equals(UsuarioTipo.USUARIO)) {
-            throw new EntityNotFoundException("ID invalido");
+            throw new IllegalArgumentException("ID invalido para essa operação.");
         } else {
             return new UserResponseDto(
                     user.getId(),
@@ -65,14 +65,13 @@ public class UserService {
                             .collect(Collectors.toList())
             );
         }
-
     }
 
     public GlobalResponseDto listByIdClinica(String id) {
         User clinica = userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Clinica não encontrada: " + id));
         if (!clinica.getTipo().equals(UsuarioTipo.CLINICA)) {
-            throw new EntityNotFoundException("ID invalido");
+            throw new IllegalArgumentException("ID invalido para essa operação.");
         } else {
             return new GlobalResponseDto(
                     clinica.getId(),
@@ -100,7 +99,7 @@ public class UserService {
         User ong = userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Ong não encontrada: " + id));
         if (!ong.getTipo().equals(UsuarioTipo.ONG)) {
-            throw new EntityNotFoundException("ID invalido");
+            throw new IllegalArgumentException("ID invalido para essa operação.");
         } else {
             return new GlobalResponseDto(
                     ong.getId(),
@@ -132,7 +131,6 @@ public class UserService {
         User user = userRepository.findByUsername(data.email())
                 .orElseThrow(() -> new NoSuchElementException("Usuário não encontrado"));
         return token;
-
     }
 
     public User saveUser(UserRequestDto data) {
@@ -214,7 +212,7 @@ public class UserService {
                 authorities);
     }
 
-    public GlobalResponseDto toGlocalResponseDto(User user) {
+    public GlobalResponseDto toGlobalResponseDto(User user) {
 
         List<String> authorities = user.getAuthorities()
                 .stream().map(GrantedAuthority::getAuthority).toList();
@@ -259,7 +257,6 @@ public class UserService {
       if (data.password() != null)
         user.setSenha(passwordEncoder.encode(data.password()));
 
-      System.out.println(user.toString());
       return userRepository.save(user);
     }
     public User updateClinica(String id, ClinicaRequestDto data) {

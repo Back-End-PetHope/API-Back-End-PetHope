@@ -93,13 +93,13 @@ public class User implements UserDetails {
     this.isPrestadorServico = this.isPrestadorServico != null ? isPrestadorServico : false;
   }
 
-  public User(String Cnpj, String responsavelNome,
+  public User(String cnpj, String responsavelNome,
       String telefone, String cidade, String logradouro, String razaoSocial,
       String username, String senha, String site, String urlInstagram, String urlFacebook,
       UsuarioTipo tipo, Boolean isPrestadorServico) {
 
     this.id = String.valueOf(UUID.randomUUID());
-    this.cpfCnpj = Cnpj;
+    this.cpfCnpj = cnpj;
     this.responsavelNome = responsavelNome;
     this.telefone = telefone;
     this.cidade = cidade;
