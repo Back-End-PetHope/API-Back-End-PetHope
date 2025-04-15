@@ -1,4 +1,4 @@
-package com.github.znoque.pethope.model.pet;
+package com.github.znoque.pethope.Enum;
 
 public enum Sexo {
     M("Macho"),

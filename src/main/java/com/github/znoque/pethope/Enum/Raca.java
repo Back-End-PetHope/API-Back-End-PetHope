@@ -1,4 +1,4 @@
-package com.github.znoque.pethope.model.pet;
+package com.github.znoque.pethope.Enum;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;

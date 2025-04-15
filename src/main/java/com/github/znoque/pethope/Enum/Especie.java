@@ -1,6 +1,4 @@
-package com.github.znoque.pethope.model.pet;
-
-import com.fasterxml.jackson.annotation.JsonValue;
+package com.github.znoque.pethope.Enum;
 
 import java.util.Arrays;
 
