@@ -1,5 +1,7 @@
 package com.github.znoque.pethope.Enum;
 
+import java.util.Arrays;
+
 public enum Sexo {
     M("Macho"),
     F("Fêmea");
@@ -13,4 +15,12 @@ public enum Sexo {
     public String getDisplayName() {
         return displayName;
     }
+
+    public static Sexo fromDisplayName(String displayName) {
+        return Arrays.stream(Sexo.values())
+                .filter(s -> s.getDisplayName().equalsIgnoreCase(displayName))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Sexo inválido."));
+    }
+
 }

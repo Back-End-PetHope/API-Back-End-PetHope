@@ -1,5 +1,9 @@
 package com.github.znoque.pethope.model.pet;
 
+import com.github.znoque.pethope.Enum.Especie;
+import com.github.znoque.pethope.Enum.Raca;
+import com.github.znoque.pethope.Enum.Sexo;
+import com.github.znoque.pethope.Enum.Temperamento;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
@@ -36,6 +40,11 @@ public class Pet {
     @Column(name = "pet_sexo", nullable = false)
     @NotNull
     private Sexo sexo;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "pet_temperamento", nullable = false)
+    @NotNull
+    private Temperamento temperamento;
 
     @Column(name = "pet_ativo")
     private boolean ativo = true;
@@ -118,4 +127,8 @@ public class Pet {
     public void setSexo(Sexo sexo) {
         this.sexo = sexo;
     }
+
+    public Temperamento getTemperamento() { return temperamento; }
+
+    public void setTemperamento(Temperamento temperamento) { this.temperamento = temperamento; }
 }
