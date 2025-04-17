@@ -1,4 +1,4 @@
-package com.github.znoque.pethope.Enum;
+package com.github.znoque.pethope.enums;
 
 import java.util.Arrays;
 
@@ -8,7 +8,6 @@ public enum Especie {
     COELHO("Coelho"),
     PASSARO("Pássaro");
 
-    // Nome formatado da espécie
     private final String displayName;
 
     Especie (String displayName) {

@@ -1,11 +1,13 @@
 package com.github.znoque.pethope.controller;
 
-import com.github.znoque.pethope.Enum.Sexo;
-import com.github.znoque.pethope.Enum.Temperamento;
-import com.github.znoque.pethope.dto.PetDto;
-import com.github.znoque.pethope.Enum.Especie;
-import com.github.znoque.pethope.model.pet.Pet;
-import com.github.znoque.pethope.Enum.Raca;
+import com.github.znoque.pethope.docs.PetApi;
+import com.github.znoque.pethope.dto.ResponseDto;
+import com.github.znoque.pethope.dto.pet.PetRequestDto;
+import com.github.znoque.pethope.dto.pet.PetResponseDto;
+import com.github.znoque.pethope.enums.Especie;
+import com.github.znoque.pethope.enums.Raca;
+import com.github.znoque.pethope.enums.Sexo;
+import com.github.znoque.pethope.enums.Temperamento;
 import com.github.znoque.pethope.services.PetService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -18,65 +20,78 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/v1/pets")
-@CrossOrigin(origins = "*")
-public class PetController {
-
+public class PetController implements PetApi {
     private final PetService petService;
 
-    public PetController(PetService petService) { this.petService = petService; }
+    public PetController(PetService petService) {
+        this.petService = petService;
+    }
 
+    @Override
     @PostMapping
-    public ResponseEntity<Pet> createPet(@RequestBody @Valid PetDto petDto) {
-        Pet pet = petService.savePet(petDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(pet);
+    public ResponseEntity<ResponseDto<PetResponseDto>> create(@RequestBody @Valid PetRequestDto petRequestDto) {
+        PetResponseDto pet = petService.savePet(petRequestDto);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(new ResponseDto<>(pet));
     }
 
+    @Override
     @PutMapping("/{id}")
-    public ResponseEntity<Pet> updatePet(@PathVariable int id, @RequestBody @Valid PetDto petDto) {
-        Pet updatedPet = petService.updatePet(petDto, id);
-        return ResponseEntity.ok(updatedPet);
+    public ResponseEntity<ResponseDto<PetResponseDto>> update(@PathVariable int id, @RequestBody @Valid PetRequestDto petRequestDto) {
+        PetResponseDto updatedPet = petService.updatePet(petRequestDto, id);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(new ResponseDto<>(updatedPet));
     }
 
+    @Override
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePet(@PathVariable int id) {
+    public ResponseEntity<Void> delete(@PathVariable int id) {
         petService.deletePetById(id);
         return ResponseEntity.noContent().build();
     }
 
+    @Override
     @GetMapping("/{id}")
-    public ResponseEntity<Pet> getPetById(@PathVariable int id) {
-        Pet pet = petService.getPetById(id);
-        return ResponseEntity.ok(pet);
+    public ResponseEntity<ResponseDto<PetResponseDto>> getById(@PathVariable int id) {
+        PetResponseDto pet = petService.getPetById(id);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(new ResponseDto<>(pet));
     }
 
+    @Override
     @GetMapping
-    public List<Pet> getAllPets() {
-        return petService.getPets();
+    public ResponseEntity<ResponseDto<List<PetResponseDto>>> getAll() {
+        List<PetResponseDto> pets = petService.getPets();
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(new ResponseDto<>(pets));
     }
 
-    //Gets para os seletores de cadastro
+    @Override
     @GetMapping("/especies")
     public ResponseEntity<List<Map<String, String>>> getEspecies() {
         List<Map<String, String>> especies = Arrays.stream(Especie.values())
                 .map(e -> Map.of("nome", e.getDisplayName(), "value", e.name()))
-                        .toList();
+                .toList();
 
         return ResponseEntity.ok(especies);
     }
 
+    @Override
     @GetMapping("/racas")
     public ResponseEntity<List<Map<String, String>>> getRacasbyEspecie(@RequestParam String especie) {
-        try {
-            List<Map<String, String>> racas = Raca.getRacasByEspecie(Especie.fromDisplayName(especie)).stream()
-                    .map(r -> Map.of("nome", r.getDisplayName(), "value", r.name()))
-                    .toList();
+        List<Map<String, String>> racas = Raca.getRacasByEspecie(Especie.fromDisplayName(especie)).stream()
+                .map(r -> Map.of("nome", r.getDisplayName(), "value", r.name()))
+                .toList();
 
-            return ResponseEntity.ok(racas);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(List.of(Map.of("erro", e.getMessage())));
-        }
+        return ResponseEntity.ok(racas);
+
     }
 
+    @Override
     @GetMapping("/temperamentos")
     public ResponseEntity<List<Map<String, String>>> getTemperamentos() {
         List<Map<String, String>> temperamentos = Arrays.stream(Temperamento.values())
@@ -86,6 +101,7 @@ public class PetController {
         return ResponseEntity.ok(temperamentos);
     }
 
+    @Override
     @GetMapping("/sexos")
     public ResponseEntity<List<Map<String, String>>> getSexos() {
         List<Map<String, String>> sexos = Arrays.stream(Sexo.values())
@@ -95,8 +111,9 @@ public class PetController {
         return ResponseEntity.ok(sexos);
     }
 
-    @GetMapping("/search")
-    public ResponseEntity<List<Pet>> getPetByFilters(
+    @Override
+    @GetMapping("/filtros")
+    public ResponseEntity<ResponseDto<List<PetResponseDto>>> getByFilters(
             @RequestParam(required = false) String especie,
             @RequestParam(required = false) String raca,
             @RequestParam(required = false) Integer idadeMin,
@@ -106,16 +123,18 @@ public class PetController {
             return ResponseEntity.badRequest().build();
         }
 
-        List<Pet> pets = petService.findByFilters(especie, raca, idadeMin, idadeMax);
-        return ResponseEntity.ok(pets);
+        List<PetResponseDto> pets = petService.findByFilters(especie, raca, idadeMin, idadeMax);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(new ResponseDto<>(pets));
     }
 
+    @Override
     @PatchMapping("/{id}")
-    public ResponseEntity<Pet> patchPet(@PathVariable int id) {
-        Pet petInativado = petService.inativarPet(id);
-
-        return ResponseEntity.ok(petInativado);
+    public ResponseEntity<ResponseDto<PetResponseDto>> deactivatePet(@PathVariable int id) {
+        PetResponseDto petInativado = petService.inativarPet(id);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(new ResponseDto<>(petInativado));
     }
-
-
 }

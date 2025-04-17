@@ -1,8 +1,8 @@
 package com.github.znoque.pethope.specification;
 
-import com.github.znoque.pethope.Enum.Especie;
-import com.github.znoque.pethope.model.pet.Pet;
-import com.github.znoque.pethope.Enum.Raca;
+import com.github.znoque.pethope.enums.Especie;
+import com.github.znoque.pethope.model.Pet;
+import com.github.znoque.pethope.enums.Raca;
 import org.springframework.data.jpa.domain.Specification;
 import jakarta.persistence.criteria.Predicate;
 

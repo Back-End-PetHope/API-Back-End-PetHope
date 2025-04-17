@@ -1,9 +1,9 @@
 package com.github.znoque.pethope.services;
 
-import com.github.znoque.pethope.dto.PetDto;
-import com.github.znoque.pethope.Enum.Especie;
-import com.github.znoque.pethope.model.pet.Pet;
-import com.github.znoque.pethope.Enum.Raca;
+import com.github.znoque.pethope.dto.pet.PetRequestDto;
+import com.github.znoque.pethope.dto.pet.PetResponseDto;
+import com.github.znoque.pethope.mapper.PetMapper;
+import com.github.znoque.pethope.model.Pet;
 import com.github.znoque.pethope.repository.PetRepository;
 import com.github.znoque.pethope.specification.PetSpec;
 import jakarta.persistence.EntityNotFoundException;
@@ -16,88 +16,64 @@ import java.util.List;
 public class PetService {
 
     private final PetRepository petRepository;
+    private final PetMapper petMapper;
 
-    public PetService(PetRepository petRepository) {
+    public PetService(PetRepository petRepository, PetMapper petMapper) {
         this.petRepository = petRepository;
+        this.petMapper = petMapper;
     }
 
-    public Pet savePet(PetDto petDto) {
-        Pet pet = new Pet();
+    public PetResponseDto savePet(PetRequestDto petRequestDto) {
+        Pet pet = petMapper.toPet(petRequestDto);
+        Pet persistedPet = petRepository.save(pet);
 
-        pet.setNome(petDto.nome());
-        pet.setDescricao(petDto.descricao());
-        pet.setEspecie(petDto.especie());
-        pet.setRaca(petDto.raca());
-        pet.setIdade(petDto.idade());
-        pet.setSexo(petDto.sexo());
-        pet.setTemperamento(petDto.temperamento());
-        pet.setAtivo(petDto.ativo());
-        pet.setDisponibilidade(pet.isDisponibilidade());
-
-        return petRepository.save(pet);
+        return petMapper.toPetResponseDto(persistedPet);
     }
 
-    public List<Pet> getPets() {
-        return petRepository.findAll();
+    public List<PetResponseDto> getPets() {
+        return petRepository.findAll().stream().map(petMapper::toPetResponseDto).toList();
     }
 
-    public Pet getPetById (int id) {
-        return petRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Pet não encontrado com o id: " + id));
-
+    public PetResponseDto getPetById(int id) {
+        Pet pet = petRepository.findById(id).orElseThrow(() ->
+                new EntityNotFoundException("Pet não encontrado com o id: " + id));
+        return petMapper.toPetResponseDto(pet);
     }
 
-    public Pet updatePet (PetDto petDto, int id) {
-        Pet pet = petRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Pet não encontrado com o id: " + id));
+    public PetResponseDto updatePet(PetRequestDto petRequestDto, int id) {
+        Pet pet = petRepository.findById(id).orElseThrow(() ->
+                new EntityNotFoundException("Pet não encontrado com o id: " + id));
 
-        pet.setNome(petDto.nome());
-        pet.setDescricao(petDto.descricao());
-        pet.setEspecie(petDto.especie());
-        pet.setRaca(petDto.raca());
-        pet.setIdade(petDto.idade());
-        pet.setSexo(petDto.sexo());
-        pet.setTemperamento(petDto.temperamento());
-        pet.setAtivo(petDto.ativo());
-        pet.setDisponibilidade(pet.isDisponibilidade());
+        pet.atualizarCom(petRequestDto);
 
-        return petRepository.save(pet);
+        Pet updatedPet = petRepository.save(pet);
+
+        return petMapper.toPetResponseDto(updatedPet);
 
     }
 
     public void deletePetById(int id) {
-       if(petRepository.existsById(id)) {
-           petRepository.deleteById(id);
-       } else {
-           throw new RuntimeException("Pet não existe ou já deletado.");
-       }
+        if (!petRepository.existsById(id)) {
+            throw new EntityNotFoundException("Pet não encontrado com o id: " + id);
+        }
+        petRepository.deleteById(id);
     }
 
-//    public List<Pet> findByEspecie(Especie especie) {
-//        return petRepository.findByEspecie(especie);
-//    }
-//
-//    public List<Pet> findByRaca(Raca raca) {
-//        return petRepository.findByRaca(raca);
-//    }
-//
-//    public List<Pet> findByIdadeBetween(int idadeMin, int idadeMax) {
-//        if(idadeMin > idadeMax) {
-//            throw new IllegalArgumentException("Idade minima não pode ser maior que idade máxima.");
-//        }
-//        return petRepository.findByIdadeBetween(idadeMin, idadeMax);
-//    }
+    public PetResponseDto inativarPet(int id) {
+        Pet pet = petRepository.findById(id).orElseThrow(() ->
+                new EntityNotFoundException("Pet não encontrado com o id: " + id));
 
-    public Pet inativarPet(int id) {
-        Pet petInativado = petRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Pet não encontrado."));
+        pet.inativar();
 
-        petInativado.setAtivo(false);
+        Pet inactivePet = petRepository.save(pet);
 
-        return petRepository.save(petInativado);
+        return petMapper.toPetResponseDto(inactivePet);
     }
 
-    public List<Pet> findByFilters(String especie, String raca, Integer idadeMin, Integer idadeMax) {
+    public List<PetResponseDto> findByFilters(String especie, String raca, Integer idadeMin, Integer idadeMax) {
         Specification<Pet> spec = PetSpec.filters(especie, raca, idadeMin, idadeMax);
 
-        return petRepository.findAll(spec);
+        return petRepository.findAll(spec).stream().map(petMapper::toPetResponseDto).toList();
     }
 
 

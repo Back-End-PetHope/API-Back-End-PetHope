@@ -1,4 +1,4 @@
-package com.github.znoque.pethope.Enum;
+package com.github.znoque.pethope.enums;
 
 import java.util.Arrays;
 

@@ -1,11 +1,10 @@
-package com.github.znoque.pethope.Enum;
+package com.github.znoque.pethope.enums;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;
 import java.util.List;
 
 public enum Raca {
-    // Cachorro
     PASTOR_ALEMAO("Pastor Alemão", Especie.CACHORRO),
     LABRADOR("Labrador", Especie.CACHORRO),
     CAO_SRD("Cachorro SRD", Especie.CACHORRO),
@@ -13,13 +12,11 @@ public enum Raca {
     GOLDEN_RETRIEVER("Golden Retriver", Especie.CACHORRO),
     ROTTWEILER("Rottweiler", Especie.CACHORRO),
 
-    // Gato
     PERSA("Persa", Especie.GATO),
     SIAMES("Siamês", Especie.GATO),
     ANGORA("Angorá", Especie.GATO),
     GATO_SRD("Gato SRD", Especie.GATO),
 
-    // Pássaro
     CALOPSITA("Calopsita", Especie.PASSARO),
     PERIQUITO("Periquito", Especie.PASSARO);
 

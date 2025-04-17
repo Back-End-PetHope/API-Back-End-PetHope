@@ -1,0 +1,5 @@
+USE pethope_db;
+
+CREATE USER IF NOT EXISTS 'admin'@'%' IDENTIFIED BY 'pethope@123';
+GRANT ALL PRIVILEGES ON *.* TO 'admin'@'%';
+FLUSH PRIVILEGES;
