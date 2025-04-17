@@ -63,13 +63,6 @@ public class User implements UserDetails {
   @Column(name = "usuario_responsavel_nome", nullable = false)
   private String responsavelNome;
 
-  @NotBlank
-  private String razaoSocial;
-
-  @NotBlank
-  @Column(name = "usuario_responsavel_nome", nullable = false)
-  private String responsavelNome;
-
   @Size(max = 14)
   @Column(name = "usuario_telefone", nullable = false)
   private String telefone;

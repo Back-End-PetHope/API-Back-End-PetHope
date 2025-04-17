@@ -3,9 +3,6 @@ package com.github.znoque.pethope.services;
 import com.github.znoque.pethope.dto.user.GlobalUserResponseDto;
 import com.github.znoque.pethope.dto.user.clinica.ClinicaRequestDto;
 import com.github.znoque.pethope.dto.user.ong.OngRequestDto;
-import com.github.znoque.pethope.dto.GlobalResponseDto;
-import com.github.znoque.pethope.dto.clinica.ClinicaRequestDto;
-import com.github.znoque.pethope.dto.ong.OngRequestDto;
 
 import com.github.znoque.pethope.dto.user.AuthResquestDto;
 import com.github.znoque.pethope.dto.user.UserRequestDto;
@@ -27,8 +24,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-
-import java.util.NoSuchElementException;
 
 @Service
 public class UserService {
