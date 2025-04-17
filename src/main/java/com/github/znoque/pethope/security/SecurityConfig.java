@@ -42,6 +42,7 @@ public class SecurityConfig {
             .permitAll()
             .anyRequest().authenticated())
         .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class);
+
     return http.build();
   }
 

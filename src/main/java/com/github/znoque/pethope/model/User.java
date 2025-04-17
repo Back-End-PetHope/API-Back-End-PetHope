@@ -1,15 +1,19 @@
 package com.github.znoque.pethope.model;
 
+
 import com.github.znoque.pethope.dto.user.UserUpdateRequestDto;
 import com.github.znoque.pethope.dto.user.clinica.ClinicaRequestDto;
 import com.github.znoque.pethope.dto.user.ong.OngRequestDto;
+
 import com.github.znoque.pethope.enums.UsuarioTipo;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+
 import org.hibernate.annotations.GenericGenerator;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,11 +21,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 
+
 @Entity
 @Table(name = "usuario")
 public class User implements UserDetails {
 
   @Id
+
   @GeneratedValue(generator = "UUID")
   @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
   @Column(name = "usuario_id", updatable = false, nullable = false)
@@ -58,6 +64,12 @@ public class User implements UserDetails {
   private String responsavelNome;
 
   @NotBlank
+  private String razaoSocial;
+
+  @NotBlank
+  @Column(name = "usuario_responsavel_nome", nullable = false)
+  private String responsavelNome;
+
   @Size(max = 14)
   @Column(name = "usuario_telefone", nullable = false)
   private String telefone;
@@ -66,7 +78,6 @@ public class User implements UserDetails {
   @Column(name = "usuario_logradouro")
   private String logradouro;
 
-  @NotBlank
   @Size(max = 150)
   @Column(name = "usuario_cidade", nullable = false)
   private String cidade;

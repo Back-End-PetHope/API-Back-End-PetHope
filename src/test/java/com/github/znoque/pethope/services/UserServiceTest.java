@@ -47,6 +47,7 @@ class UserServiceTest {
     private User user;
     private UserResponseDto userResponseDto;
 
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
@@ -133,6 +134,7 @@ class UserServiceTest {
 
         assertNotNull(savedUser);
         assertEquals(userRequestDto.email(), savedUser.email());
+
         verify(userRepository, times(1)).save(any(User.class));
     }
 }

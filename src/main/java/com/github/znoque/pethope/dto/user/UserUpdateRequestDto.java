@@ -1,7 +1,9 @@
 package com.github.znoque.pethope.dto.user;
 
 import jakarta.validation.constraints.Email;
+
 import jakarta.validation.constraints.NotBlank;
+
 import jakarta.validation.constraints.Size;
 import org.hibernate.validator.constraints.br.CPF;
 
@@ -31,5 +33,6 @@ public record UserUpdateRequestDto(
 
         @Size(min = 6, max = 255, message = "A senha deve ter no mínimo 6 e no máximo 255 caracteres")
         @NotBlank(message = "Senha não pode estar vazia")
+
         String password
 ) {}

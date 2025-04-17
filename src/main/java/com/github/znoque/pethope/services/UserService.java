@@ -3,12 +3,17 @@ package com.github.znoque.pethope.services;
 import com.github.znoque.pethope.dto.user.GlobalUserResponseDto;
 import com.github.znoque.pethope.dto.user.clinica.ClinicaRequestDto;
 import com.github.znoque.pethope.dto.user.ong.OngRequestDto;
+import com.github.znoque.pethope.dto.GlobalResponseDto;
+import com.github.znoque.pethope.dto.clinica.ClinicaRequestDto;
+import com.github.znoque.pethope.dto.ong.OngRequestDto;
+
 import com.github.znoque.pethope.dto.user.AuthResquestDto;
 import com.github.znoque.pethope.dto.user.UserRequestDto;
 import com.github.znoque.pethope.dto.user.UserResponseDto;
 import com.github.znoque.pethope.dto.user.UserUpdateRequestDto;
 import com.github.znoque.pethope.enums.UsuarioTipo;
 import com.github.znoque.pethope.mapper.UserMapper;
+
 import com.github.znoque.pethope.model.User;
 import com.github.znoque.pethope.repository.UserRepository;
 import com.github.znoque.pethope.security.TokenService;
@@ -16,20 +21,24 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
+import java.util.NoSuchElementException;
 
 @Service
 public class UserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final TokenService tokenService;
-
     UserService(UserRepository userRepository, UserMapper userMapper, PasswordEncoder passwordEncoder,
                 AuthenticationManager authenticationManager, TokenService tokenService) {
         this.userRepository = userRepository;
@@ -144,6 +153,7 @@ public class UserService {
 
       return userMapper.toUserResponseDto(updatedUser);
     }
+    
     public GlobalUserResponseDto updateClinica(String id, ClinicaRequestDto clinicaRequestDto) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Clínica não encontrada."));
@@ -159,6 +169,7 @@ public class UserService {
 
         return userMapper.toGlobalUserResponseDto(updatedUser);
     }
+    
     public GlobalUserResponseDto updateOng(String id, OngRequestDto ongRequestDto) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Ong não encontrada."));
@@ -180,11 +191,13 @@ public class UserService {
           .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
       userRepository.delete(user);
     }
+    
     public void deleteClinica(String id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Clinica não encontrada"));
-        userRepository.delete(user);
+
     }
+    
     public void deleteOng(String id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Ong não encontrada"));

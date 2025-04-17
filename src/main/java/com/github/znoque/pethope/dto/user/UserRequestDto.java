@@ -8,6 +8,7 @@ import org.hibernate.validator.constraints.br.CPF;
 public record UserRequestDto(
 
         @CPF(message = "CPF deve ser válido")
+
         String cpf,
 
         @NotBlank(message = "Nome não pode ser vazio")
