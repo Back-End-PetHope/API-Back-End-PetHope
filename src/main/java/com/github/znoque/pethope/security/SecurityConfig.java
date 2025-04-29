@@ -34,8 +34,7 @@ public class SecurityConfig {
             "/users/{id}", "/users/ong/{id}", "/users/clinica/{id}")
             .permitAll()
             .anyRequest().authenticated())
-        .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
-        .oauth2Login(form -> form.defaultSuccessUrl("/oauth/auth-google-info", true));
+        .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class);
     return http.build();
   }
 
