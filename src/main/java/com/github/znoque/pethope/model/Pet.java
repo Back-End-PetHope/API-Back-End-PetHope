@@ -55,6 +55,10 @@ public class Pet {
     @Column(name = "pet_sexo", nullable = false)
     private Sexo sexo;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "usuario_id", nullable = false)
+    private User usuario;
+
     @Deprecated
     public Pet() {
     }
@@ -68,7 +72,8 @@ public class Pet {
             Sexo sexo,
             Temperamento temperamento,
             boolean ativo,
-            boolean disponivel) {
+            boolean disponivel,
+            User usuario) {
         this.nome = nome;
         this.descricao = descricao;
         this.especie = especie;
@@ -78,6 +83,7 @@ public class Pet {
         this.temperamento = temperamento;
         this.ativo = ativo;
         this.disponivel = disponivel;
+        this.usuario = usuario;
     }
 
     public void inativar() {
@@ -136,6 +142,10 @@ public class Pet {
         return disponivel;
     }
 
+    public User getUsuario() { return usuario; }
+
+    public void setUsuario(User usuarioLogado) { this.usuario = usuario;}
+
     @Override
     public String toString() {
         return "Pet{" +
@@ -162,6 +172,7 @@ public class Pet {
         private Temperamento temperamento;
         private boolean ativo = true;
         private boolean disponivel = false;
+        private User usuario;
 
         public Builder comNome(String nome) {
             this.nome = nome;
@@ -208,8 +219,13 @@ public class Pet {
             return this;
         }
 
+        public Builder comUsuario(User usuario) {
+            this.usuario = usuario;
+            return this;
+        }
+
         public Pet build() {
-            return new Pet(nome, descricao, especie, raca, idade, sexo, temperamento, ativo, disponivel);
+            return new Pet(nome, descricao, especie, raca, idade, sexo, temperamento, ativo, disponivel, usuario);
         }
     }
 

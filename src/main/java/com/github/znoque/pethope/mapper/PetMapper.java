@@ -19,7 +19,8 @@ public class PetMapper {
                 persistedPet.getSexo(),
                 persistedPet.getTemperamento(),
                 persistedPet.isAtivo(),
-                persistedPet.isDisponivel()
+                persistedPet.isDisponivel(),
+                persistedPet.getUsuario()
         );
     }
 

@@ -4,10 +4,12 @@ import com.github.znoque.pethope.dto.pet.PetRequestDto;
 import com.github.znoque.pethope.dto.pet.PetResponseDto;
 import com.github.znoque.pethope.mapper.PetMapper;
 import com.github.znoque.pethope.model.Pet;
+import com.github.znoque.pethope.model.User;
 import com.github.znoque.pethope.repository.PetRepository;
 import com.github.znoque.pethope.specification.PetSpec;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -25,8 +27,11 @@ public class PetService {
 
     public PetResponseDto savePet(PetRequestDto petRequestDto) {
         Pet pet = petMapper.toPet(petRequestDto);
-        Pet persistedPet = petRepository.save(pet);
 
+        User usuarioLogado = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        pet.setUsuario(usuarioLogado);
+
+        Pet persistedPet = petRepository.save(pet);
         return petMapper.toPetResponseDto(persistedPet);
     }
 

@@ -18,6 +18,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -89,6 +90,10 @@ public class User implements UserDetails {
   @Column(name = "usuario_url_facebook")
   @Size(max = 255)
   private String urlFacebook;
+
+  @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<Pet> pets = new ArrayList<>();
+
 
   public User(String username, String senha, UsuarioTipo tipo, String cpfCnpj, String razaoSocial,
               String responsavelNome, String telefone, String logradouro, String cidade,
