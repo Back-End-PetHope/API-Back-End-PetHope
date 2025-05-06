@@ -2,13 +2,13 @@ spring:
   application:
     name: pethope
   datasource:
-    url: ${DB_URL:jdbc:mysql://localhost:3306/pethope_db}
-    username: ${DB_USER:admin}
-    password: ${DB_PASSWORD:pethope@123}
-    driver-class-name: com.mysql.cj.jdbc.Driver
+      url: jdbc:mysql://localhost:3306/db_adote_me_api
+      username: root
+      password: '4633'
   jpa:
-    show-sql: false
-    database-platform: org.hibernate.dialect.MySQLDialect
+    show-sql: true
+    hibernate:
+      ddl-auto: create-drop
   security:
     oauth2:
       client:

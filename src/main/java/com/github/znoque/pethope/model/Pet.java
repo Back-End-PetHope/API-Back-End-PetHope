@@ -55,7 +55,7 @@ public class Pet {
     @Column(name = "pet_sexo", nullable = false)
     private Sexo sexo;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "usuario_id", nullable = false)
     private User usuario;
 
@@ -144,7 +144,7 @@ public class Pet {
 
     public User getUsuario() { return usuario; }
 
-    public void setUsuario(User usuarioLogado) { this.usuario = usuario;}
+    public void setUsuario(User usuario) { this.usuario = usuario;}
 
     @Override
     public String toString() {

@@ -8,6 +8,7 @@ import com.github.znoque.pethope.model.User;
 import com.github.znoque.pethope.repository.PetRepository;
 import com.github.znoque.pethope.specification.PetSpec;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,7 @@ public class PetService {
         this.petMapper = petMapper;
     }
 
+    @Transactional
     public PetResponseDto savePet(PetRequestDto petRequestDto) {
         Pet pet = petMapper.toPet(petRequestDto);
 

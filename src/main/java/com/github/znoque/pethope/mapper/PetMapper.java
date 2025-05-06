@@ -35,6 +35,7 @@ public class PetMapper {
                 .comTemperamento(petRequestDto.temperamento())
                 .estaAtivo(petRequestDto.ativo())
                 .estaDisponivel(petRequestDto.disponivel())
+                .comUsuario(petRequestDto.usuario())
                 .build();
     }
 }
