@@ -210,7 +210,6 @@ public class User implements UserDetails {
     return "User{" +
             "id='" + id + '\'' +
             ", email='" + username + '\'' +
-            ", senha='" + senha + '\'' +
             ", tipo=" + tipo +
             ", cpfCnpj='" + cpfCnpj + '\'' +
             ", razaoSocial='" + razaoSocial + '\'' +

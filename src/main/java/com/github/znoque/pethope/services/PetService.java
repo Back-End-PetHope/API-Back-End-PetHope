@@ -28,10 +28,9 @@ public class PetService {
 
     @Transactional
     public PetResponseDto savePet(PetRequestDto petRequestDto) {
-        Pet pet = petMapper.toPet(petRequestDto);
-
         User usuarioLogado = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        pet.setUsuario(usuarioLogado);
+
+        Pet pet = petMapper.toPet(petRequestDto, usuarioLogado);
 
         Pet persistedPet = petRepository.save(pet);
         return petMapper.toPetResponseDto(persistedPet);

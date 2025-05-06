@@ -4,7 +4,6 @@ import com.github.znoque.pethope.enums.Especie;
 import com.github.znoque.pethope.enums.Raca;
 import com.github.znoque.pethope.enums.Sexo;
 import com.github.znoque.pethope.enums.Temperamento;
-import com.github.znoque.pethope.model.User;
 import jakarta.validation.constraints.*;
 
 public record PetRequestDto(
@@ -35,8 +34,6 @@ public record PetRequestDto(
 
         boolean ativo,
 
-        boolean disponivel,
-
-        User usuario
+        boolean disponivel
 ) {
 }

@@ -14,7 +14,7 @@ import jakarta.validation.constraints.*;
 public class Pet {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "pet_id")
     private int id;
 
@@ -24,12 +24,10 @@ public class Pet {
     private String nome;
 
     @Enumerated(EnumType.STRING)
-    @NotBlank
     @Column(name = "pet_especie", nullable = false)
     private Especie especie;
 
     @Enumerated(EnumType.STRING)
-    @NotBlank
     @Column(name = "pet_raca", nullable = false)
     private Raca raca;
 
@@ -144,21 +142,20 @@ public class Pet {
 
     public User getUsuario() { return usuario; }
 
-    public void setUsuario(User usuario) { this.usuario = usuario;}
-
     @Override
     public String toString() {
         return "Pet{" +
                 "id=" + id +
                 ", nome='" + nome + '\'' +
-                ", descricao='" + descricao + '\'' +
                 ", especie=" + especie +
                 ", raca=" + raca +
                 ", idade=" + idade +
-                ", sexo=" + sexo +
                 ", temperamento=" + temperamento +
                 ", ativo=" + ativo +
                 ", disponivel=" + disponivel +
+                ", descricao='" + descricao + '\'' +
+                ", sexo=" + sexo +
+                ", usuario=" + usuario +
                 '}';
     }
 

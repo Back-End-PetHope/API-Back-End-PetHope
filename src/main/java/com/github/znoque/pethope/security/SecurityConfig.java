@@ -26,23 +26,23 @@ public class SecurityConfig {
         .authorizeHttpRequests(auth -> auth.requestMatchers(
             "/swagger-ui/**",
             "/v3/api-docs/**",
-            "/users/login",
-            "/users",
-            "/users/{id}",
-            "/users/clinica/{id}",
-            "/users/ong/{id}",
-            "/users/clinica",
-            "/users/ong",
-            "/pets",
-            "/pets/especies",
-            "/pets/racas",
-            "/pets/temperamentos",
-            "/pets/sexos",
-            "/pets/filtros")
+            "/v1/users/login",
+            "/v1/users",
+            "/v1/users/{id}",
+            "/v1/users/clinica/{id}",
+            "/v1/users/ong/{id}",
+            "/v1/users/clinica",
+            "/v1/users/ong",
+            "/v1/pets",
+            "/v1/pets/{id}",
+            "/v1/pets/especies",
+            "/v1/pets/racas",
+            "/v1/pets/temperamentos",
+            "/v1/pets/sexos",
+            "/v1/pets/filtros")
             .permitAll()
             .anyRequest().authenticated())
         .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class);
-
     return http.build();
   }
 
