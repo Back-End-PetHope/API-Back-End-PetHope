@@ -137,4 +137,12 @@ public class PetController implements PetApi {
                 .status(HttpStatus.OK)
                 .body(new ResponseDto<>(petInativado));
     }
+    
+    @PatchMapping("/adotado/{id}")
+    public ResponseEntity<ResponseDto<PetResponseDto>> adopted_Pet(@PathVariable int id) {
+        PetResponseDto petAdotado = petService.adotedPet(id);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(new ResponseDto<>(petAdotado));
+    }
 }
