@@ -42,7 +42,7 @@ public class Pet {
     private boolean ativo = true;
 
     @Column(name = "pet_status")
-    private boolean disponivel = false;
+    private boolean disponivel = true;
 
     @NotBlank
     @Size(max = 255)
@@ -86,6 +86,10 @@ public class Pet {
 
     public void inativar() {
         this.ativo = false;
+    }
+
+    public void setDisponivel(boolean disponivel) {
+        this.disponivel = disponivel;
     }
 
     public void atualizarCom(PetRequestDto dto) {
@@ -167,8 +171,8 @@ public class Pet {
         private int idade;
         private Sexo sexo;
         private Temperamento temperamento;
-        private boolean ativo = true;
-        private boolean disponivel = false;
+        private boolean ativo;
+        private boolean disponivel;
         private User usuario;
 
         public Builder comNome(String nome) {
