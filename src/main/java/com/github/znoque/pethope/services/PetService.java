@@ -75,6 +75,18 @@ public class PetService {
 
         return petMapper.toPetResponseDto(inactivePet);
     }
+    
+    public PetResponseDto adotedPet(int id) {
+        Pet pet = petRepository.findById(id).orElseThrow(() ->
+                new EntityNotFoundException("Pet não encontrado com o id: " + id));
+
+        pet.setDisponivel(false);
+
+        Pet adotadoPet = petRepository.save(pet);
+
+        return petMapper.toPetResponseDto(adotadoPet);
+    }
+
 
     public List<PetResponseDto> findByFilters(String especie, String raca, Integer idadeMin, Integer idadeMax) {
         Specification<Pet> spec = PetSpec.filters(especie, raca, idadeMin, idadeMax);
