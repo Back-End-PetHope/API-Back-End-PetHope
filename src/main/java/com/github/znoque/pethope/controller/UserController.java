@@ -1,12 +1,13 @@
 package com.github.znoque.pethope.controller;
 
-import com.github.znoque.pethope.config.UserApi;
-import com.github.znoque.pethope.dto.GlobalResponseDto;
+
+import com.github.znoque.pethope.docs.UserApi;
+import com.github.znoque.pethope.dto.user.GlobalUserResponseDto;
 import com.github.znoque.pethope.dto.ResponseDto;
-import com.github.znoque.pethope.dto.clinica.ClinicaRequestDto;
-import com.github.znoque.pethope.dto.ong.OngRequestDto;
+import com.github.znoque.pethope.dto.user.clinica.ClinicaRequestDto;
+import com.github.znoque.pethope.dto.user.ong.OngRequestDto;
 import com.github.znoque.pethope.dto.user.*;
-import com.github.znoque.pethope.model.User;
+
 import com.github.znoque.pethope.services.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -14,9 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
-@RequestMapping("/users")
+@RequestMapping("/v1/users")
 @RestController
 public class UserController implements UserApi {
 
@@ -26,144 +26,121 @@ public class UserController implements UserApi {
         this.userService = userService;
     }
 
+    @Override
     @GetMapping
-    @Override
-    public ResponseEntity<ResponseDto<List<GlobalResponseDto>>> findAllUser() {
-        return Optional.ofNullable(userService.listAllUser())
-                .filter(list -> !list.isEmpty())
-                .map(listaUser -> ResponseEntity.status(HttpStatus.OK)
-                        .body(new ResponseDto<>(
-                                listaUser)))
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(new ResponseDto<>(
-                                null)));
+    public ResponseEntity<ResponseDto<List<GlobalUserResponseDto>>> getAll() {
+        List<GlobalUserResponseDto> globalUserResponseDtos = userService.listAllUser();
+        return ResponseEntity.ok(new ResponseDto<>(globalUserResponseDtos));
     }
 
+    @Override
     @GetMapping("/{id}")
-    @Override
-    public ResponseEntity<ResponseDto<UserResponseDto>> findByIdUser(@PathVariable @Valid String id) {
-        return Optional.ofNullable(userService.listByIdUser(id))
-                .map(result -> ResponseEntity.status(HttpStatus.OK)
-                        .body(new ResponseDto<>(result)))
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(new ResponseDto<>(null)));
+    public ResponseEntity<ResponseDto<UserResponseDto>> getUserById(@PathVariable @Valid String id) {
+        UserResponseDto userResponseDto = userService.findUserById(id);
+        return ResponseEntity.ok(new ResponseDto<>(userResponseDto));
     }
 
+    @Override
     @GetMapping("/clinica/{id}")
-    @Override
-    public ResponseEntity<ResponseDto<GlobalResponseDto>> findByIdClinica(@PathVariable @Valid String id) {
-        return Optional.ofNullable(userService.listByIdClinica(id))
-                .map(result -> ResponseEntity.status(HttpStatus.OK)
-                        .body(new ResponseDto<>(result)))
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(new ResponseDto<>(null)));
+    public ResponseEntity<ResponseDto<GlobalUserResponseDto>> getClinicaById(@PathVariable @Valid String id) {
+        GlobalUserResponseDto clinicaResponseDto = userService.findClinicaById(id);
+        return ResponseEntity.ok(new ResponseDto<>(clinicaResponseDto));
     }
 
+    @Override
     @GetMapping("/ong/{id}")
-    @Override
-    public ResponseEntity<ResponseDto<GlobalResponseDto>> findByIdOng(@PathVariable @Valid String id) {
-        return Optional.ofNullable(userService.listByIdOng(id))
-                .map(result -> ResponseEntity.status(HttpStatus.OK)
-                        .body(new ResponseDto<>(result)))
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(new ResponseDto<>(null)));
+    public ResponseEntity<ResponseDto<GlobalUserResponseDto>> getOngById(@PathVariable @Valid String id) {
+        GlobalUserResponseDto ongResponseDto = userService.findOngById(id);
+        return ResponseEntity.ok(new ResponseDto<>(ongResponseDto));
     }
 
+    @Override
     @PostMapping()
-    @Override
-    public ResponseEntity<?> createUser(@RequestBody @Valid UserRequestDto data) {
-        User user = userService.saveUser(data);
+    public ResponseEntity<ResponseDto<UserResponseDto>> createUser(@RequestBody @Valid UserRequestDto data) {
+        UserResponseDto userResponseDto = userService.saveUser(data);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(new ResponseDto<>(
-                        userService.toUserResponseDto(user)));
+                .body(new ResponseDto<>(userResponseDto));
     }
 
+    @Override
     @PostMapping("/clinica")
-    @Override
-    public ResponseEntity<?> createClinica(@RequestBody @Valid ClinicaRequestDto data) {
-        User user = userService.saveClinica(data);
+    public ResponseEntity<ResponseDto<GlobalUserResponseDto>> createClinica(@RequestBody @Valid ClinicaRequestDto data) {
+        GlobalUserResponseDto globalUserResponseDto = userService.saveClinica(data);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(new ResponseDto<>(
-                        userService.toGlobalResponseDto(user)));
+                .body(new ResponseDto<>(globalUserResponseDto));
     }
 
+    @Override
     @PostMapping("/ong")
-    @Override
-    public ResponseEntity<?> createOng(@RequestBody @Valid OngRequestDto data) {
-        User user = userService.saveOng(data);
+    public ResponseEntity<ResponseDto<GlobalUserResponseDto>> createOng(@RequestBody @Valid OngRequestDto data) {
+        GlobalUserResponseDto globalUserResponseDto = userService.saveOng(data);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(new ResponseDto<>(
-                        userService.toGlobalResponseDto(user)));
+                .body(new ResponseDto<>(globalUserResponseDto));
     }
 
-    @PostMapping("/login")
     @Override
-    public ResponseEntity<?> loginUser(@RequestBody @Valid AuthResquestDto data) {
-        String token = userService.authenticate(data);
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(new ResponseDto<>(
-                        new AuthResponseDto(token)));
-    }
-
     @PatchMapping("/{id}")
-
-    public ResponseEntity<?> updateUser(@PathVariable String id, @RequestBody @Valid UserUpdateRequestDto data) {
-        User updatedUser = userService.updateUser(id, data);
+    public ResponseEntity<ResponseDto<UserResponseDto>> updateUser(@PathVariable String id, @RequestBody @Valid UserUpdateRequestDto data) {
+        UserResponseDto updatedUser = userService.updateUser(id, data);
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(new ResponseDto<>(
-                        userService.toGlobalResponseDto(updatedUser)));
+                .body(new ResponseDto<>(updatedUser));
     }
 
+    @Override
     @PatchMapping("/clinica/{id}")
-    public ResponseEntity<?> updateClinica(@PathVariable String id, @RequestBody @Valid ClinicaRequestDto data) {
-        User updatedUser = userService.updateClinica(id, data);
+    public ResponseEntity<ResponseDto<GlobalUserResponseDto>> updateClinica(@PathVariable String id, @RequestBody @Valid ClinicaRequestDto data) {
+        GlobalUserResponseDto updatedUser = userService.updateClinica(id, data);
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(new ResponseDto<>(
-                        userService.toGlobalResponseDto(updatedUser)));
+                .body(new ResponseDto<>(updatedUser));
     }
 
+    @Override
     @PatchMapping("/ong/{id}")
-    public ResponseEntity<?> updateOng(@PathVariable String id, @RequestBody @Valid OngRequestDto data) {
-        User updatedUser = userService.updateOng(id, data);
+    public ResponseEntity<ResponseDto<GlobalUserResponseDto>> updateOng(@PathVariable String id, @RequestBody @Valid OngRequestDto data) {
+        GlobalUserResponseDto updatedUser = userService.updateOng(id, data);
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(new ResponseDto<>(
-                        userService.toGlobalResponseDto(updatedUser)));
+                .body(new ResponseDto<>(updatedUser));
     }
 
+    @Override
     @DeleteMapping("/{id}")
-
-    public ResponseEntity<?> deleteUser(@PathVariable String id) {
+    public ResponseEntity<ResponseDto<String>> deleteUser(@PathVariable String id) {
         userService.deleteUser(id);
         return ResponseEntity
                 .status(HttpStatus.NO_CONTENT)
-                .body(new ResponseDto<>(
-                        "Usuário deletado com sucesso"));
+                .body(new ResponseDto<>("Usuário deletado com sucesso"));
     }
 
+    @Override
     @DeleteMapping("/clinica/{id}")
-    public ResponseEntity<?> deleteClinica(@PathVariable String id) {
+    public ResponseEntity<ResponseDto<String>> deleteClinica(@PathVariable String id) {
         userService.deleteClinica(id);
         return ResponseEntity
                 .status(HttpStatus.NO_CONTENT)
-                .body(new ResponseDto<>(
-                        "Clinica deletada com sucesso"));
-
+                .body(new ResponseDto<>("Clinica deletada com sucesso"));
     }
 
+    @Override
     @DeleteMapping("/ong/{id}")
-    public ResponseEntity<?> deleteOng(@PathVariable String id) {
+    public ResponseEntity<ResponseDto<String>> deleteOng(@PathVariable String id) {
         userService.deleteOng(id);
         return ResponseEntity
                 .status(HttpStatus.NO_CONTENT)
-                .body(new ResponseDto<>(
-                        "Ong deletada com sucesso"));
+                .body(new ResponseDto<>("Ong deletada com sucesso"));
     }
 
+    @Override
+    @PostMapping("/login")
+    public ResponseEntity<ResponseDto<AuthResponseDto>> login(@RequestBody @Valid AuthResquestDto data) {
+        String token = userService.authenticate(data);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(new ResponseDto<>(new AuthResponseDto(token)));
+    }
 }

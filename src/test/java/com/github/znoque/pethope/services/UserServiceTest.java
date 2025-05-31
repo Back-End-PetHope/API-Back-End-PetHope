@@ -2,7 +2,9 @@ package com.github.znoque.pethope.services;
 
 import com.github.znoque.pethope.dto.user.AuthResquestDto;
 import com.github.znoque.pethope.dto.user.UserRequestDto;
+import com.github.znoque.pethope.dto.user.UserResponseDto;
 import com.github.znoque.pethope.enums.UsuarioTipo;
+import com.github.znoque.pethope.mapper.UserMapper;
 import com.github.znoque.pethope.model.User;
 import com.github.znoque.pethope.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,9 +15,11 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -27,8 +31,10 @@ class UserServiceTest {
     private UserRepository userRepository;
 
     @Mock
-    private AuthenticationManager authenticationManager;
+    private UserMapper userMapper;
 
+    @Mock
+    private AuthenticationManager authenticationManager;
 
     @Mock
     private PasswordEncoder passwordEncoder;
@@ -39,13 +45,15 @@ class UserServiceTest {
     private AuthResquestDto authResquestDto;
     private UserRequestDto userRequestDto;
     private User user;
+    private UserResponseDto userResponseDto;
+
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
         authResquestDto = new AuthResquestDto("test@example.com", "password123");
         userRequestDto = new UserRequestDto(
-                "12345678901", // CPF fictício formatado
+                "12345678901",
                 "João Silva",
                 "11999999999",
                 "São Paulo",
@@ -54,15 +62,28 @@ class UserServiceTest {
                 "password123"
         );
 
-        user = new User(
-                userRequestDto.cpf(),
-                userRequestDto.responsavelNome(),
-                userRequestDto.telefone(),
-                userRequestDto.cidade(),
-                userRequestDto.endereco(),
-                userRequestDto.email(),
-                "encodedPassword", // Aqui assumo que a senha será codificada antes de ser salva
-                UsuarioTipo.USUARIO
+        user = User.builder()
+                .comCpfCnpj(userRequestDto.cpf())
+                .comResponsavelNome(userRequestDto.responsavelNome())
+                .comTelefone(userRequestDto.telefone())
+                .comLogradouro(userRequestDto.endereco())
+                .comCidade(userRequestDto.cidade())
+                .comUsername(userRequestDto.email())
+                .comSenha("encodedPassword")
+                .doTipo(UsuarioTipo.USUARIO   )
+                .build();
+
+        userResponseDto = new UserResponseDto(
+                UUID.randomUUID().toString(),
+                user.getUsername(),
+                user.getTipo(),
+                user.getCpfCnpj(),
+                user.getResponsavelNome(),
+                user.getTelefone(),
+                user.getLogradouro(),
+                user.getCidade(),
+                user.getPrestadorServico(),
+                user.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList()
         );
     }
 
@@ -106,11 +127,14 @@ class UserServiceTest {
         when(userRepository.findByUsername(userRequestDto.email())).thenReturn(Optional.empty());
         when(passwordEncoder.encode(userRequestDto.password())).thenReturn("encodedPassword");
         when(userRepository.save(any(User.class))).thenReturn(user);
+        when(userMapper.toUserResponseDto(any(User.class))).thenReturn(userResponseDto);
+        when(userMapper.toUser(any(UserRequestDto.class), any(String.class))).thenReturn(user);
 
-        User savedUser = userService.saveUser(userRequestDto);
+        UserResponseDto savedUser = userService.saveUser(userRequestDto);
 
         assertNotNull(savedUser);
-        assertEquals(userRequestDto.email(), savedUser.getUsername());
+        assertEquals(userRequestDto.email(), savedUser.email());
+
         verify(userRepository, times(1)).save(any(User.class));
     }
 }

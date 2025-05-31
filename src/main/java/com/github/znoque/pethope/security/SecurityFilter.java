@@ -1,6 +1,7 @@
 package com.github.znoque.pethope.security;
 
 import com.github.znoque.pethope.repository.UserRepository;
+import com.github.znoque.pethope.services.AuthService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,13 +19,14 @@ import java.io.IOException;
 public class SecurityFilter extends OncePerRequestFilter {
 
     private final TokenService tokenService;
+    private final AuthService authService;
     private final UserRepository userRepository;
 
-    public SecurityFilter(TokenService tokenService, UserRepository userRepository) {
+    public SecurityFilter(TokenService tokenService, AuthService authService, UserRepository userRepository) {
         this.tokenService = tokenService;
+        this.authService = authService;
         this.userRepository = userRepository;
     }
-
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -32,8 +34,7 @@ public class SecurityFilter extends OncePerRequestFilter {
         String token = this.recoverToken(request);
         if(token != null) {
             String username = tokenService.validateToken(token);
-            UserDetails user = userRepository.findByUsername(username)
-                    .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado: " + username));
+            UserDetails user = authService.loadUserByUsername(username);
             var auth = new UsernamePasswordAuthenticationToken(user,null,user.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(auth);
         }
