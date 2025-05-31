@@ -13,7 +13,9 @@ services:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./docker/scripts/create_user.sql:/docker-entrypoint-initdb.d/create_user.sql
+      - ./docker/scripts/01_create_admin_user.sql:/docker-entrypoint-initdb.d/01_create_admin_user.sql
+      - ./docker/scripts/02_create_usuario.sql:/docker-entrypoint-initdb.d/02_create_usuario.sql
+      - ./docker/scripts/03_create_pet.sql:/docker-entrypoint-initdb.d/03_create_pet.sql
 
 volumes:
   mysql_data:

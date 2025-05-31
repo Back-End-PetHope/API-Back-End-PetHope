@@ -1,30 +1,27 @@
-package com.github.znoque.pethope.dto.ong;
+package com.github.znoque.pethope.dto.user.clinica;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import org.hibernate.validator.constraints.br.CNPJ;
 
-public record OngRequestDto(
-
-        @CNPJ
-        @NotBlank(message = "CNPJ não pode ser vazio")
-        @Size(min = 14, max = 14, message = "CNPJ deve conter exatamente 14 dígitos")
+public record ClinicaRequestDto(
+        @CNPJ(message = "CNPJ deve ser válido")
         String cnpj,
 
         @NotBlank(message = "Nome do Proprietário não pode ser vazio")
         String responsavelNome,
 
         @NotBlank(message = "Telefone não pode ser vazio")
-        @Size(max = 14, message = "Telefone deve conter até 14 dígitos")
+        @Size(message = "Telefone deve conter até 14 digitos")
         String telefone,
 
         @NotBlank(message = "Cidade não pode ser vazio")
-        @Size(max = 150, message = "Cidade deve conter até 150 caracteres")
+        @Size(message = "Cidade deve conter até 150 caracteres")
         String cidade,
 
         @NotBlank(message = "Logradouro não pode ser vazio")
-        @Size(max = 150, message = "Logradouro deve conter até 150 caracteres")
+        @Size(message = "Logradouro deve conter até 150 caracteres")
         String endereco,
 
         @NotBlank(message = "Razao Social não pode ser vazio")
@@ -39,17 +36,16 @@ public record OngRequestDto(
         String senha,
 
         @NotBlank(message = "Site não pode ser vazio")
-        @Size(max = 150, message = "Site deve conter até 150 caracteres")
+        @Size(message = "Site deve conter até 150 caracteres")
         String site,
 
         @NotBlank(message = "UrlFacebook não pode ser vazio")
-        @Size(max = 150, message = "UrlFacebook deve conter até 150 caracteres")
+        @Size(message = "UrlFacebook deve conter até 150 caracteres")
         String urlFacebook,
 
         @NotBlank(message = "UrlInstagram não pode ser vazio")
-        @Size(max = 150, message = "UrlInstagram deve conter até 150 caracteres")
+        @Size(message = "UrlInstagram deve conter até 150 caracteres")
         String urlInstagram,
 
-        Boolean isPrestadorServico
-) {
+        boolean isPrestadorServico) {
 }
